@@ -1,7 +1,10 @@
-# GestorPro PWA, logo actualizado
+# GestorPro PWA
 
-Este paquete reemplaza todos los iconos PWA, favicon y logotipo principal con la nueva imagen GestorPro. La caché fue actualizada a `gestorpro-v2`.
+Paquete PWA con el logotipo proporcionado y el nombre GestorPro.
 
-Para conservar la aplicación funcional actual, copie `PWA-HEAD.html` en el head del index existente y `PWA-BODY.html` antes de cerrar body. Suba todos los demás archivos y la carpeta icons.
-
-Si la app estaba instalada, desinstálela y vuelva a instalarla después de publicar los cambios.
+## Integración
+1. Conserve el index.html completo actual.
+2. Copie `PWA-HEAD.html` dentro de `<head>`.
+3. Copie `PWA-BODY.html` antes de `</body>`.
+4. Suba todos los archivos y la carpeta `icons` a la raíz del repositorio.
+5. El `index.html` incluido sirve para comprobar la instalación; no reemplaza el index funcional de la aplicación.
