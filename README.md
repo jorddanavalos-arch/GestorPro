@@ -1,10 +1,19 @@
-# GestorPro PWA
+# GestorPro
 
-Paquete PWA con el logotipo proporcionado y el nombre GestorPro.
+Aplicación web progresiva (PWA) lista para publicar en GitHub Pages.
 
-## Integración
-1. Conserve el index.html completo actual.
-2. Copie `PWA-HEAD.html` dentro de `<head>`.
-3. Copie `PWA-BODY.html` antes de `</body>`.
-4. Suba todos los archivos y la carpeta `icons` a la raíz del repositorio.
-5. El `index.html` incluido sirve para comprobar la instalación; no reemplaza el index funcional de la aplicación.
+## Publicar
+
+1. Cree un repositorio en GitHub.
+2. Suba **todo el contenido** de esta carpeta a la raíz del repositorio.
+3. Abra **Settings > Pages**.
+4. En **Build and deployment**, seleccione **Deploy from a branch**.
+5. Seleccione la rama `main` y la carpeta `/(root)`, luego guarde.
+6. Abra la URL publicada y espere unos segundos. El botón **Instalar** aparecerá cuando el navegador habilite la instalación.
+
+## Importante
+
+- No cambie la ubicación de `manifest.webmanifest`, `sw.js` ni de la carpeta `icons`.
+- GitHub Pages usa HTTPS, requisito necesario para el service worker.
+- Al actualizar la aplicación, cambie `CACHE_NAME` en `sw.js` para forzar la actualización del caché.
+- Los datos se guardan localmente en el navegador del dispositivo. No se sincronizan entre dispositivos.

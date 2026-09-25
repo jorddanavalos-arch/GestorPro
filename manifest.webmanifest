@@ -1,19 +1,25 @@
 {
   "id": "./",
-  "name": "GestorPro",
+  "name": "GestorPro - Sistema Integrado de Cobranzas",
   "short_name": "GestorPro",
-  "description": "Sistema integrado para la gestión operativa de cobranzas",
-  "lang": "es",
-  "start_url": "./",
+  "description": "Herramienta de gestión de cobranzas, indicadores, descuentos, visitas y comunicaciones.",
+  "lang": "es-SV",
+  "dir": "ltr",
+  "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "any",
   "background_color": "#0b1320",
   "theme_color": "#0b1320",
   "categories": [
     "business",
-    "finance",
-    "productivity"
+    "productivity",
+    "finance"
   ],
   "icons": [
     {
@@ -27,6 +33,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "./icons/icon-maskable-512.png",

@@ -1,1 +1,2060 @@
-<!doctype html><html lang='es'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" type="image/png" href="./favicon.png"><link rel="apple-touch-icon" href="./icons/icon-180.png"><meta name="theme-color" content="#0b1320"><meta name="application-name" content="GestorPro"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="GestorPro"><title>GestorPro</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(145deg,#0b1320,#132238);color:white;font-family:system-ui;text-align:center;padding:24px}main{max-width:620px}img{max-width:100%;border-radius:24px}button{padding:14px 22px;border:0;border-radius:14px;background:#00adb5;color:#06111f;font-weight:900}</style></head><body><main><img src='./logo-gestorpro.png' alt='GestorPro'><h1>GestorPro PWA</h1><p>Aplicación instalable. Para conservar todas las funciones, integre los fragmentos PWA al index actual.</p><button id='install-pwa-button'>Instalar GestorPro</button></main><script src='./pwa-register.js'></script></body></html>
+<!DOCTYPE html>
+<html lang="es" class="h-full dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>GestorPro - Sistema Integrado de Cobranzas</title>
+    <!-- PWA / instalacion -->
+    <meta name="theme-color" content="#0b1320">
+    <meta name="application-name" content="GestorPro">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GestorPro">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (window.tailwind) tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            950: '#0b1320',
+                            900: '#101a2c',
+                            800: '#132238',
+                            700: '#1c314f',
+                            600: '#27446b'
+                        },
+                        brand: {
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af'
+                        },
+                        whatsapp: {
+                            500: '#25d366',
+                            600: '#128c7e',
+                            700: '#075e54'
+                        },
+                        cyanAccent: '#00adb5'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+        
+        /* Mobile Native App Touch & Viewport Styling */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        input, textarea, select {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        body {
+            font-family: 'Hanken Grotesk', sans-serif;
+            background-color: #0b1320;
+            color: #f8fafc;
+            overscroll-behavior-y: none;
+        }
+
+        /* Safe area spacing for mobile devices */
+        .pb-safe {
+            padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+        }
+
+        .pt-safe {
+            padding-top: max(1rem, env(safe-area-inset-top, 0px));
+        }
+
+        .bottom-nav-inset {
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        /* View section visibility */
+        .app-view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .app-view.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Custom Touch Target Rules */
+        .touch-btn {
+            min-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1320;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1c314f;
+            border-radius: 4px;
+        }
+
+        /* Active touch pulse animation */
+        .active-scale:active {
+            transform: scale(0.96);
+        }
+
+        :root{--obsidian:#080a10;--cyan-glow:#00f5ff;--electric-indigo:#618bff;--emerald-accent:#05f19c;--amber-alert:#ff9e58;}
+        h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif}
+        .metric-number,.metric-mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+        .metrics-shell{position:relative;padding:14px;border-radius:20px;background:linear-gradient(145deg,rgba(13,19,32,.92),rgba(7,11,19,.96));border:1px solid rgba(111,119,141,.2);box-shadow:0 18px 45px rgba(0,0,0,.34);overflow:hidden}
+        .metrics-shell:before{content:'';position:absolute;inset:-80px auto auto -70px;width:190px;height:190px;border-radius:50%;background:rgba(0,245,255,.08);filter:blur(45px);pointer-events:none}
+        .metrics-title-icon{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;color:var(--cyan-glow);background:rgba(0,245,255,.09);border:1px solid rgba(0,245,255,.28);box-shadow:0 0 18px rgba(0,245,255,.08)}
+        .indicator-card{position:relative;padding:15px;border-radius:18px;background:linear-gradient(145deg,rgba(17,25,42,.92),rgba(8,13,23,.96));border:1px solid rgba(52,68,94,.7);box-shadow:0 12px 30px rgba(0,0,0,.27),inset 0 1px 0 rgba(255,255,255,.035);overflow:hidden}
+        .indicator-card:after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 96% 0%,rgba(97,139,255,.07),transparent 34%);pointer-events:none}
+        .indicator-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;position:relative;z-index:1}
+        .indicator-title{font-family:'Space Grotesk',sans-serif;font-size:15px;line-height:1.15;font-weight:800;color:#fff}
+        .pond-chip{display:inline-flex;margin-top:7px;padding:3px 8px;border-radius:999px;font:700 9px 'JetBrains Mono';color:#9cc1ff;background:rgba(37,99,235,.18);border:1px solid rgba(59,130,246,.38)}
+        .status-pill{display:flex;align-items:center;gap:6px;min-width:113px;justify-content:center;padding:8px 12px;border-radius:999px;font:700 10px 'JetBrains Mono';line-height:1.25;text-align:left}
+        .status-pill:before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor;flex:none}
+        .status-good{color:var(--emerald-accent);background:rgba(5,241,156,.09);border:1px solid rgba(5,241,156,.28)}
+        .status-warn{color:var(--amber-alert);background:rgba(255,158,88,.09);border:1px solid rgba(255,158,88,.28)}
+        .indicator-copy{margin-top:13px;color:#9aa6bd;font-size:11px;position:relative;z-index:1}
+        .indicator-values{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;margin-top:13px;position:relative;z-index:1}
+        .indicator-main{font:800 16px 'JetBrains Mono';color:#fff;font-variant-numeric:tabular-nums}.indicator-target{color:#8490a8;font:500 10px 'JetBrains Mono'}
+        .indicator-points{color:var(--cyan-glow);font:700 11px 'JetBrains Mono';text-align:right;max-width:145px}
+        .track{height:8px;margin-top:14px;border-radius:99px;background:#070b12;border:1px solid #263248;overflow:hidden;position:relative;z-index:1}
+        .track-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#16c6db,#009cff,#618bff);box-shadow:0 0 13px rgba(0,245,255,.34);transition:width .55s cubic-bezier(.22,1,.36,1)}
+        .track-fill.indigo{background:linear-gradient(90deg,#3186ff,#685cff)}.track-fill.amber{background:linear-gradient(90deg,#ff9e58,#ffcc67)}
+        .indicator-foot{display:flex;justify-content:space-between;gap:10px;margin-top:10px;padding-bottom:12px;color:#99a4ba;font:500 9px 'JetBrains Mono';border-bottom:1px solid rgba(111,119,141,.18);position:relative;z-index:1}.indicator-foot b{color:#fff}.indicator-foot .breach{color:var(--amber-alert);font-weight:700;text-align:right}
+        .sim-row{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:12px;color:#8390a9;font:700 10px 'Hanken Grotesk';position:relative;z-index:1}.sim-row i{color:var(--cyan-glow)}
+        .sim-range{appearance:none;width:100%;height:3px;border-radius:99px;background:#1c2940}.sim-range::-webkit-slider-thumb{appearance:none;width:13px;height:13px;border-radius:50%;background:var(--cyan-glow);border:0;box-shadow:0 0 6px #00f5ff,0 0 14px rgba(0,245,255,.7)}.sim-value{color:#74b9ff;font:700 10px 'JetBrains Mono'}
+        @media(min-width:700px){.indicator-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.indicator-card{height:100%}.indicator-values{grid-template-columns:1fr}.indicator-points{text-align:left;max-width:none}}
+
+    </style>
+</head>
+<body class="h-full flex flex-col bg-navy-950 text-slate-100 antialiased overflow-x-hidden selection:bg-brand-500 selection:text-white">
+
+    <!-- CABECERA SUPERIOR MÓVIL FIJA -->
+    <header class="fixed top-0 left-0 right-0 z-30 bg-navy-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 flex items-center justify-between pt-safe shadow-lg">
+        <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-cyanAccent flex items-center justify-center text-white font-black text-sm shadow-md shadow-brand-500/20">
+                JA
+            </div>
+            <div>
+                <div class="flex items-center gap-1.5">
+                    <input id="top-manager-name" type="text" value="" maxlength="30" placeholder="NOMBRE" aria-label="Nombre mostrado" class="w-28 bg-transparent border-b border-transparent focus:border-cyanAccent focus:outline-none font-extrabold text-sm text-white uppercase">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                </div>
+                <p id="top-date-display" class="text-[11px] font-medium text-slate-400 mt-0.5">Cargando fecha...</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button id="pwa-install-button" type="button" class="hidden touch-btn px-3 py-1.5 bg-cyanAccent text-navy-950 active-scale rounded-xl text-xs font-black" aria-label="Instalar GestorPro">Instalar</button>
+            <button onclick="toggleProfileModal()" class="touch-btn px-3 py-1.5 bg-navy-800 hover:bg-navy-700 active-scale border border-slate-700/60 rounded-xl text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                <i data-lucide="user-check" class="w-3.5 h-3.5 text-cyanAccent"></i>
+                <span>Gestor Pro</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL VISTAS -->
+    <main class="flex-1 pt-20 pb-safe px-3.5 max-w-lg mx-auto w-full space-y-4">
+
+        <!-- MÓDULO 1: PANEL SEMANAL & GESTOR APP -->
+        <section id="view-panel" class="app-view active space-y-4">
+            <button type="button" onclick="resetPanelInformation()" class="touch-btn w-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-xs font-bold rounded-xl gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Restablecer información del Panel</button>
+            <!-- Metrics ABANK rediseñadas con estilo de referencia -->
+            <div class="metrics-shell space-y-3">
+                <div class="flex items-center justify-between relative z-10">
+                    <div class="flex items-center gap-2.5">
+                        <div class="metrics-title-icon"><i data-lucide="activity" class="w-5 h-5"></i></div>
+                        <div><h3 class="text-sm font-extrabold text-white">Métricas Clave ABANK</h3><p class="text-[10px] text-slate-400">3 Indicadores de Rendimiento</p></div>
+                    </div>
+                    
+                </div>
+                <div class="indicator-grid space-y-3 md:space-y-0">
+                    <article class="indicator-card">
+                        <div class="indicator-head"><div><div id="efficiency-segment-title" class="indicator-title">Eficiencia Neta M180</div><span class="pond-chip">50% Pond</span></div><span id="kpi-eficiencia-status" class="status-pill status-good">En Meta</span></div>
+                        <p class="indicator-copy">Actual vs Meta Base (2.01%) y Nivel Óptimo (3.51%)</p>
+                        <div class="indicator-values"><div><span id="kpi-eficiencia-val" class="indicator-main">0.00%</span><span class="indicator-target"> / 3.51% para 50 pts</span></div><span id="metric-eff-points" class="indicator-points">0 pts obtenidos</span></div>
+                        <div class="track"><div id="metric-eff-bar" class="track-fill"></div></div>
+                        <div class="indicator-foot"><span>Base: <b>2.01% (10 pts)</b></span><span id="metric-eff-gap" class="breach">Brecha pendiente</span></div>
+                        <div class="sim-row"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i><span>Simular Meta</span><input id="metric-eff-range" class="sim-range" type="range" min="2.01" max="3.51" step="0.01" value="2.51"><span id="metric-eff-range-val" class="sim-value">2.51%</span></div><p id="metric-eff-sim-result" class="mt-2 text-[10px] text-cyan-300 metric-mono">Ingrese datos para simular</p>
+                    </article>
+                    <article class="indicator-card">
+                        <div class="indicator-head"><div><div class="indicator-title">Pase 120 Días</div><span class="pond-chip">20% Pond</span></div><span id="kpi-pase-status" class="status-pill status-good">Sin datos</span></div>
+                        <p class="indicator-copy">Contención de flujo mora hacia castigo</p>
+                        <div class="indicator-values"><div><span id="kpi-pase-val" class="indicator-main">0.00%</span><span class="indicator-target"> / Límite Máx. 14.00%</span></div><span id="metric-pass-points" class="indicator-points">0 pts</span></div>
+                        <div class="track"><div id="metric-pass-bar" class="track-fill indigo"></div></div>
+                        <div class="indicator-foot"><span>Óptimo: <b>≤ 10.00%</b></span><span id="metric-pass-gap" class="breach">Sin base</span></div>
+                        <div class="sim-row"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i><span>Simular Meta</span><input id="metric-pass-range" class="sim-range" type="range" min="8" max="14" step="0.01" value="10"><span id="metric-pass-range-val" class="sim-value">10.00%</span></div><p id="metric-pass-sim-result" class="mt-2 text-[10px] text-cyan-300 metric-mono">Ingrese datos para simular</p>
+                    </article>
+                    <article class="indicator-card">
+                        <div class="indicator-head"><div><div class="indicator-title">% Regresos</div><span class="pond-chip">30% Pond</span></div><span id="kpi-regresos-status" class="status-pill status-warn">Sin datos</span></div>
+                        <p class="indicator-copy">Saldo capital de clientes que se pusieron al día</p>
+                        <div class="indicator-values"><div><span id="kpi-regresos-val" class="indicator-main">0.00%</span><span class="indicator-target"> / Meta 13.01%</span></div><span id="metric-return-points" class="indicator-points">0 pts obtenidos</span></div>
+                        <div class="track"><div id="metric-return-bar" class="track-fill amber"></div></div>
+                        <div class="indicator-foot"><span>Umbral: <b>6.01% (10 pts)</b></span><span id="metric-return-gap" class="breach">Brecha pendiente</span></div>
+                        <div class="sim-row"><i data-lucide="sliders-horizontal" class="w-4 h-4"></i><span>Simular Meta</span><input id="metric-return-range" class="sim-range" type="range" min="6.01" max="13.01" step="0.01" value="6.01"><span id="metric-return-range-val" class="sim-value">6.01%</span></div><p id="metric-return-sim-result" class="mt-2 text-[10px] text-cyan-300 metric-mono">Ingrese datos para simular</p>
+                    </article>
+                </div>
+                <div class="indicator-card !p-4 flex items-center justify-between gap-3">
+                    <div><div class="text-[10px] uppercase tracking-widest text-cyanAccent font-bold">Comisión estimada</div><span id="kpi-comision-val" class="metric-number text-2xl font-black text-emerald-400">$0.00</span></div>
+                    <div class="text-right"><span class="text-[10px] text-slate-400">Proyección</span><strong id="commission-projection" class="block text-emerald-400 text-xs">Baja</strong></div>
+                </div>
+            </div>
+
+            <!-- Faltante Monetario Card -->
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-2">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                        <i data-lucide="target" class="w-4 h-4 text-brand-500"></i> Cumplimiento integral de indicadores
+                    </span>
+                    <span id="kpi-gap-percent" class="text-xs font-black text-cyanAccent">Cumplido</span>
+                </div>
+                <div class="w-full bg-navy-950 rounded-full h-3 overflow-hidden p-0.5 border border-slate-800">
+                    <div id="kpi-gap-bar" class="bg-gradient-to-r from-brand-600 to-cyanAccent h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between items-center text-[11px] text-slate-400 pt-1">
+                    <span>Puntaje total: <strong id="kpi-recuperado-val" class="text-white">0.00%</strong></span>
+                    <span>Detalle: <strong id="kpi-gap-amount" class="text-rose-400">Pendiente</strong></span>
+                </div>
+            </div>
+
+            <!-- Dynamic Graph Canvas -->
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 text-brand-500"></i> Comparativo Ejecutado vs Metas
+                    </h3>
+                    <span class="text-[10px] text-slate-400">Actualizado</span>
+                </div>
+                <div class="w-full h-44 bg-navy-950 rounded-xl p-2 border border-slate-800/80 flex items-center justify-center">
+                    <canvas id="canvasDashboardChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-4">
+                <div class="flex items-center justify-between gap-3">
+                    <div><h3 class="text-xs font-bold text-white">Ajuste de Indicadores de Cartera</h3><span class="text-[9px] uppercase tracking-widest text-cyanAccent">Cálculo automático</span></div>
+                    <label class="shrink-0 text-[9px] font-bold uppercase tracking-wide text-slate-400">Semana
+                        <input id="input-week-number" type="number" min="1" step="1" inputmode="numeric" value="0" class="block mt-1 w-16 bg-navy-950 border border-cyanAccent/40 rounded-lg px-2 py-1.5 text-center text-xs text-white font-black focus:border-cyanAccent focus:outline-none">
+                    </label>
+                </div>
+                <form id="form-panel-kpis" onsubmit="event.preventDefault(); updatePanelKPIs();" class="space-y-4">
+                    <section class="bg-navy-950/70 border border-slate-800 rounded-xl p-3 space-y-3"><div class="flex justify-between"><h4 class="text-[11px] font-black tracking-widest text-cyanAccent">EFICIENCIA</h4><strong id="calc-efficiency-current" class="text-sm text-white">0.00%</strong></div><div class="grid grid-cols-2 gap-2"><label class="text-[10px] text-slate-400">Requerido ($)<input id="input-required" type="number" step="any" inputmode="decimal" value="0" class="mt-1 w-full bg-navy-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white"></label><label class="text-[10px] text-slate-400">Cobranza ($)<input id="input-collection" type="number" step="any" inputmode="decimal" value="0" class="mt-1 w-full bg-navy-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white"></label></div><p class="text-[9px] text-slate-500">% Eficiencia ponderada = suma de Cobranza ÷ suma de Requerido</p><div><span class="text-[10px] text-slate-400 block mb-1">Promedio de semanas seleccionadas</span><div id="efficiency-week-selector" class="grid grid-cols-2 gap-1.5 text-[10px]"></div></div><div class="flex justify-between border-t border-slate-800 pt-2"><span class="text-[10px] text-slate-400">Eficiencia promedio seleccionada</span><strong id="calc-efficiency-4w" class="text-cyanAccent">0.00%</strong></div></section>
+                    <section class="bg-navy-950/70 border border-slate-800 rounded-xl p-3 space-y-3"><div class="flex justify-between"><h4 class="text-[11px] font-black tracking-widest text-brand-400">PASE</h4><strong id="calc-pass" class="text-sm text-white">0.00%</strong></div><div class="grid grid-cols-2 gap-2"><label class="text-[10px] text-slate-400">Cartera Parcial ($)<input id="input-partial-portfolio" type="number" step="any" inputmode="decimal" value="0" class="mt-1 w-full bg-navy-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white"></label><label class="text-[10px] text-slate-400">Pase ($)<input id="input-pass-amount" type="number" step="any" inputmode="decimal" value="0" class="mt-1 w-full bg-navy-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white"></label></div><p class="text-[9px] text-slate-500">% Pase = Pase ÷ Cartera Parcial</p></section>
+                    <section class="bg-navy-950/70 border border-slate-800 rounded-xl p-3 space-y-3"><div class="flex justify-between"><h4 class="text-[11px] font-black tracking-widest text-amber-400">REGRESOS</h4><strong id="calc-returns" class="text-sm text-white">0.00%</strong></div><div class="grid grid-cols-2 gap-2"><label class="text-[10px] text-slate-400">Regresos ($)<input id="input-returns" type="number" step="any" inputmode="decimal" value="0" class="mt-1 w-full bg-navy-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white"></label><label class="text-[10px] text-slate-400">Regresos Seg. Ant. ($)<input id="input-prev-returns" type="number" step="any" inputmode="decimal" value="0" class="mt-1 w-full bg-navy-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white"></label><label class="text-[10px] text-slate-400 col-span-2">Cartera Total ($)<input id="input-total-portfolio" type="number" step="any" inputmode="decimal" value="0" class="mt-1 w-full bg-navy-900 border border-slate-700 rounded-lg p-2.5 text-xs text-white"></label></div><p class="text-[9px] text-slate-500">% Regresos = (Regresos + Regresos segmento anterior) ÷ Cartera Total</p></section>
+                    <button type="submit" class="touch-btn w-full bg-brand-600 text-white font-bold text-xs rounded-xl gap-2"><i data-lucide="save" class="w-4 h-4"></i> Guardar semana y recalcular panel</button>
+                </form>
+            </div>
+            <!-- Historical Weeks Table -->
+            <div class="bg-navy-800 border border-slate-800 rounded-2xl shadow-md overflow-hidden">
+                <div class="p-3.5 border-b border-slate-800 flex justify-between items-center gap-2"><div><h3 class="text-xs font-bold text-white">Historial de Semanas</h3><span id="history-average-label" class="text-[10px] text-slate-400">Sin registros</span></div><button onclick="openWeekEditor()" class="touch-btn min-h-[38px] px-3 bg-brand-600 text-white text-[10px] font-bold rounded-xl">+ Semana</button></div>
+                <div class="divide-y divide-slate-800/80 text-xs text-slate-300">
+                    <div id="history-list" class="divide-y divide-slate-800/60">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3"><div><h3 class="text-xs font-bold text-white">Informe integral del panel</h3><p class="text-[10px] text-slate-400 mt-1">Incluye perfil, semana activa, indicadores, fórmulas, brechas y detalle histórico.</p></div><div class="grid grid-cols-2 gap-2"><button onclick="downloadReportPDF()" class="touch-btn bg-rose-600 text-white text-xs font-bold rounded-xl">Guardar PDF</button><button onclick="downloadReportImage()" class="touch-btn bg-emerald-600 text-white text-xs font-bold rounded-xl">Guardar IMG</button></div><button onclick="shareReport()" class="touch-btn w-full bg-whatsapp-600 text-white text-xs font-bold rounded-xl">Compartir informe</button><canvas id="canvasBankReport" class="hidden"></canvas></div>
+        </section>
+
+        <!-- MÓDULO 2: SOLICITUD DE DESCUENTOS -->
+        <section id="view-descuentos" class="app-view space-y-4">
+            <button type="button" onclick="resetDiscountInformation()" class="touch-btn w-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-xs font-bold rounded-xl gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Restablecer información de Descuentos</button>
+            <!-- Flow selector Tabs -->
+            <div class="bg-navy-900 p-1 rounded-2xl border border-slate-800 flex gap-1">
+                <button onclick="setDiscountFlow('electronic')" id="flow-btn-electronic" class="touch-btn flex-1 rounded-xl text-xs font-bold transition-all bg-brand-600 text-white shadow">
+                    ⚡ Flujo Electrónico
+                </button>
+                <button onclick="setDiscountFlow('manual')" id="flow-btn-manual" class="touch-btn flex-1 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white">
+                    📝 Excepción Manual
+                </button>
+            </div>
+
+            <!-- Form Card -->
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3.5">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+                    <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                        <i data-lucide="file-text" class="w-4 h-4 text-brand-500"></i> Datos del Cliente y Solicitud
+                    </h3>
+                    <span id="disc-flow-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-500/20 text-brand-400">AUTOMÁTICO</span>
+                </div>
+
+                <!-- Input fields -->
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Nombre Completo del Titular</label>
+                        <input type="text" id="disc-name" placeholder="Ej: Maria Elena Rodríguez" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-brand-500 focus:outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">DUI (9 dígitos)</label>
+                            <input type="text" id="disc-dui" placeholder="00000000-0" inputmode="numeric" oninput="formatDUI(this); calculateDiscount();" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-mono focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Referencia (10 dígitos)</label>
+                            <input type="text" id="disc-ref" placeholder="0000000000" inputmode="numeric" maxlength="10" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-mono focus:border-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Días Mora</label>
+                            <input type="number" id="disc-dias-mora" value="" min="0" step="1" inputmode="numeric" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Producto</label>
+                            <select id="disc-producto" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-semibold focus:border-brand-500 focus:outline-none">
+<option value="Covid">Covid</option><option value="Reestructurado">Reestructurado</option><option value="Existente">Existente</option><option value="Nuevo">Nuevo</option><option value="Produce & Invierte">Produce &amp; Invierte</option><option value="Refinanciada">Refinanciada</option>
+</select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Saldo Capital ($)</label>
+                            <input type="number" step="0.01" id="disc-capital" value="" min="0.01" inputmode="decimal" oninput="calculateDiscount()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Saldo Interés / Mora ($)</label>
+                            <input type="number" step="0.01" id="disc-mora" value="" min="0" inputmode="decimal" oninput="calculateDiscount()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Saldo a Pagar / Abono ($)</label>
+                            <input type="number" step="0.01" id="disc-offered" value="" min="0" inputmode="decimal" oninput="calculateDiscount()" class="w-full bg-navy-950 border border-emerald-500/50 rounded-xl p-2.5 text-xs text-emerald-400 font-extrabold focus:border-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Gasto Reserva ($)</label>
+                            <input type="number" step="0.01" id="disc-gasto-reserva" value="" min="0" inputmode="decimal" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Reserva Proyectada ($)</label>
+                            <input type="number" step="0.01" id="disc-reserva-proyectada" value="" min="0" inputmode="decimal" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Autorizado Por</label>
+                            <select id="disc-autorizado" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-semibold focus:border-brand-500 focus:outline-none">
+                                <option value="Director">Director</option>
+                                <option value="Regional">Regional</option>
+                                <option value="Supervisor">Supervisor</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Número de Contacto</label>
+                        <input type="tel" id="disc-contacto" inputmode="tel" maxlength="12" placeholder="7000-0000" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-mono focus:border-brand-500 focus:outline-none">
+                    </div>
+                    <div id="manual-extra-fields" class="hidden grid grid-cols-2 gap-2.5">
+                        <div><label class="block text-[11px] font-semibold text-slate-400 mb-1">Abonos anteriores ($)</label><input type="number" step="0.01" min="0" id="disc-abonos-anteriores" value="0" inputmode="decimal" oninput="syncManualOffered(); calculateDiscount()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold"></div>
+                        <div><label class="block text-[11px] font-semibold text-slate-400 mb-1">Pago de hoy ($)</label><input type="number" step="0.01" min="0" id="disc-pago-hoy" value="0" inputmode="decimal" oninput="syncManualOffered(); calculateDiscount()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold"></div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Razón / Justificación</label>
+                        <textarea id="disc-razon" rows="2" placeholder="Cliente acepta pago total inmediato por liquidación especial..." class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-brand-500 focus:outline-none"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dictamen Calculado Box -->
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-800 pb-2">Resultados del Dictamen</h4>
+                
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between items-center text-slate-300">
+                        <span>Descuento sobre Saldo en Mora:</span>
+                        <strong id="res-monto-descuento" class="text-rose-400 text-sm font-black">$0.00</strong>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-300">
+                        <span>% de Descuento sobre Mora:</span>
+                        <strong id="res-percent-descuento" class="text-cyanAccent text-sm font-black">0.00%</strong>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                        <span class="text-slate-400">Estado de Aprobación:</span>
+                        <span id="res-badge-status" class="px-2.5 py-0.5 text-[10px] font-extrabold rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">RESULTADO PRELIMINAR</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-2 gap-2 pt-2">
+                    <button onclick="copyDiscountText()" class="touch-btn bg-navy-700 hover:bg-navy-600 active-scale text-slate-200 text-xs font-bold rounded-xl gap-1.5 border border-slate-600/50">
+                        <i data-lucide="copy" class="w-4 h-4 text-cyanAccent"></i> Copiar Dictamen
+                    </button>
+                    <button onclick="downloadDiscountTXT()" class="touch-btn bg-navy-700 hover:bg-navy-600 active-scale text-slate-200 text-xs font-bold rounded-xl gap-1.5 border border-slate-600/50">
+                        <i data-lucide="download" class="w-4 h-4 text-brand-400"></i> Descargar TXT
+                    </button>
+                </div>
+                <button onclick="sendDiscountWhatsApp()" class="touch-btn w-full bg-whatsapp-600 hover:bg-whatsapp-500 active-scale text-white text-xs font-bold rounded-xl gap-2 shadow-lg shadow-whatsapp-600/20">
+                    <i data-lucide="send" class="w-4 h-4"></i> Enviar Resolución por WhatsApp
+                </button>
+            </div>
+        </section>
+
+        <!-- MÓDULO 3: AVANCE DIARIO DE COBRANZA -->
+        <section id="view-avance" class="app-view space-y-4">
+            <button type="button" onclick="resetAvanceInformation()" class="touch-btn w-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-xs font-bold rounded-xl gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Restablecer información de Avance</button>
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                        <i data-lucide="calculator" class="w-4 h-4 text-cyanAccent"></i> Captura de Avance Diario por Producto
+                    </h3>
+                    <span class="text-[10px] text-slate-400 font-mono">Exportación PNG</span>
+                </div>
+
+                <!-- Products Grid Input -->
+                <div class="space-y-2.5">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400">COVID ($)</label>
+                            <input type="number" step="0.01" id="av-covid" value="" min="0" inputmode="decimal" oninput="calculateAvanceTotal()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400">Reestructurado ($)</label>
+                            <input type="number" step="0.01" id="av-reestructurado" value="" min="0" inputmode="decimal" oninput="calculateAvanceTotal()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400">Existente ($)</label>
+                            <input type="number" step="0.01" id="av-existente" value="" min="0" inputmode="decimal" oninput="calculateAvanceTotal()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400">Nuevo ($)</label>
+                            <input type="number" step="0.01" id="av-nuevo" value="" min="0" inputmode="decimal" oninput="calculateAvanceTotal()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400">Produce e Invierte ($)</label>
+                            <input type="number" step="0.01" id="av-produce" value="" min="0.01" inputmode="decimal" oninput="calculateAvanceTotal()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400">Refinanciamiento ($)</label>
+                            <input type="number" step="0.01" id="av-refinanciamiento" value="" min="0" inputmode="decimal" oninput="calculateAvanceTotal()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-800 pt-2 grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400">Cobranza ($)</label>
+                            <input type="number" step="0.01" id="av-cobranza" value="" min="0" inputmode="decimal" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-400">Visitas Realizadas</label>
+                            <input type="number" id="av-visitas" value="" min="0" step="1" inputmode="numeric" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <div>
+                            <label class="block text-[9px] font-semibold text-slate-400">Reserva 8-10 ($)</label>
+                            <input type="number" step="0.01" id="av-reserva-8-10" value="" min="0" inputmode="decimal" class="w-full bg-navy-950 border border-slate-700 rounded-lg p-1.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-semibold text-slate-400">Reserva 11-13 ($)</label>
+                            <input type="number" step="0.01" id="av-reserva-11-13" value="" min="0" inputmode="decimal" class="w-full bg-navy-950 border border-slate-700 rounded-lg p-1.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-semibold text-slate-400">Reserva 14-16 ($)</label>
+                            <input type="number" step="0.01" id="av-reserva-14-16" value="" min="0" inputmode="decimal" class="w-full bg-navy-950 border border-slate-700 rounded-lg p-1.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Sum Banner -->
+                <div class="p-3 bg-navy-950 border border-brand-500/40 rounded-xl flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-300">Total Regresos Diario:</span>
+                    <strong id="av-total-sum" class="text-base font-black text-emerald-400">$0.00</strong>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="copyAvanceTXT()" class="touch-btn bg-navy-700 text-slate-200 text-[10px] font-bold rounded-xl">Copiar TXT</button>
+                    <button onclick="openAvanceTXTShareModal()" class="touch-btn bg-whatsapp-600 text-white text-[10px] font-bold rounded-xl">Enviar TXT por WhatsApp</button>
+                    <select id="av-report-time" class="bg-navy-950 border border-slate-700 rounded-xl px-2 text-[10px] text-white"><option value="11:00 AM">Avance 11 AM</option><option value="2:00 PM">Avance 2 PM</option><option value="6:00 PM">Cierre 6 PM</option></select>
+                </div>
+                <!-- Generate Image Action -->
+                <button onclick="renderAvancePNGCanvas()" class="touch-btn w-full bg-brand-600 hover:bg-brand-500 active-scale text-white text-xs font-bold rounded-xl gap-2 shadow-lg shadow-brand-600/30">
+                    <i data-lucide="image" class="w-4 h-4"></i> Generar Ficha de Avance PNG
+                </button>
+            </div>
+
+            <!-- Preview & Download Section -->
+            <div id="avance-preview-card" class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs font-bold text-white">Vista Previa (Ficha Ejecutiva 1080x1350)</h4>
+                    <span class="text-[10px] text-emerald-400 font-bold">HD PNG</span>
+                </div>
+                
+                <div class="w-full bg-navy-950 p-2 rounded-xl border border-slate-800 flex justify-center items-center overflow-hidden">
+                    <canvas id="canvasAvanceExport" width="1080" height="1350" class="w-full h-auto max-h-80 object-contain rounded-lg shadow-inner"></canvas>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="downloadAvancePNG()" class="touch-btn bg-emerald-600 hover:bg-emerald-500 active-scale text-white text-xs font-bold rounded-xl gap-1.5">
+                        <i data-lucide="download" class="w-4 h-4"></i> Guardar PNG
+                    </button>
+                    <button onclick="shareAvanceWhatsAppText()" class="touch-btn bg-whatsapp-600 hover:bg-whatsapp-500 active-scale text-white text-xs font-bold rounded-xl gap-1.5">
+                        <i data-lucide="share-2" class="w-4 h-4"></i> Compartir WA
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 4: CONTROL DE CLIENTES VISITADOS (META 85%) -->
+        <section id="view-visitas" class="app-view space-y-4">
+            <button type="button" onclick="resetVisitsInformation()" class="touch-btn w-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-xs font-bold rounded-xl gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Restablecer información de Visitas</button>
+            <!-- Coverage Metric Header -->
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Meta Semanal de Cobertura</span>
+                        <h3 class="text-base font-black text-white mt-0.5">Control de Visitas Campo (85%)</h3>
+                    </div>
+                    <div class="text-right">
+                        <span id="visit-meta-pct" class="text-2xl font-black text-cyanAccent">0%</span>
+                        <span class="text-[10px] text-slate-400 block font-semibold">de Cartera</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-navy-950 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-800">
+                    <div id="visit-bar-fill" class="bg-gradient-to-r from-brand-600 to-cyanAccent h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+
+                <!-- 4 Quick Counter Cards -->
+                <div class="visit-stats-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-center">
+                    <div class="bg-navy-950 p-2 rounded-xl border border-slate-800">
+                        <span class="text-[9px] text-slate-400 font-bold block uppercase">Total</span>
+                        <strong id="visit-stat-total" class="text-sm font-black text-white">0</strong>
+                    </div>
+                    <div class="bg-navy-950 p-2 rounded-xl border border-slate-800">
+                        <span class="text-[9px] text-slate-400 font-bold block uppercase">Visitados</span>
+                        <strong id="visit-stat-done" class="text-sm font-black text-emerald-400">0</strong>
+                    </div>
+                    <div class="bg-navy-950 p-2 rounded-xl border border-slate-800">
+                        <span class="text-[9px] text-slate-400 font-bold block uppercase">Meta 85%</span>
+                        <strong id="visit-stat-target" class="text-sm font-black text-cyanAccent">0</strong>
+                    </div>
+                    <div class="bg-navy-950 p-2 rounded-xl border border-slate-800 min-w-0"><span class="text-[9px] leading-tight text-slate-400 font-bold block uppercase">Faltantes para Meta</span><strong id="visit-stat-pending" class="text-sm font-black text-rose-400">0</strong></div>
+                    <div class="bg-navy-950 p-2 rounded-xl border border-slate-800 min-w-0 col-span-2 sm:col-span-1"><span class="text-[9px] leading-tight text-slate-400 font-bold block uppercase">Faltantes para Completar</span><strong id="visit-stat-pending-total" class="text-sm font-black text-amber-400">0</strong></div>
+                </div>
+            </div>
+
+            <!-- Add & Bulk Load Toolbar -->
+            <div class="bg-navy-800 border border-slate-800 p-3.5 rounded-2xl shadow-md space-y-3">
+                <div class="flex gap-2">
+                    <button onclick="toggleAddVisitModal()" class="touch-btn flex-1 bg-brand-600 hover:bg-brand-500 active-scale text-white text-xs font-bold rounded-xl gap-1.5">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Añadir Cliente
+                    </button>
+                    <button onclick="toggleBulkVisitsModal()" class="touch-btn px-4 bg-navy-700 hover:bg-navy-600 active-scale text-slate-200 text-xs font-bold rounded-xl gap-1.5 border border-slate-600/50">
+                        <i data-lucide="clipboard-list" class="w-4 h-4 text-cyanAccent"></i> Carga Masiva
+                    </button>
+                </div>
+
+                <!-- Search & Filter -->
+                <div class="flex gap-2">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                        <input type="text" id="visit-search-input" onkeyup="renderVisitsList()" placeholder="Buscar cliente o DUI..." class="w-full bg-navy-950 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:border-brand-500 focus:outline-none">
+                    </div>
+                    <button onclick="toggleVisitsSort()" id="btn-sort-visits" class="touch-btn px-3 bg-navy-950 border border-slate-700 rounded-xl text-xs font-semibold text-slate-300">
+                        A-Z
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visits List Mobile View -->
+            <div id="visits-touch-list" class="space-y-2.5">
+                <!-- Populated dynamically by JS -->
+            </div>
+            <details id="visits-archive-panel" class="bg-navy-800 border border-slate-800 rounded-2xl shadow-md overflow-hidden"><summary class="touch-btn w-full justify-between px-4 py-3 text-xs font-bold text-white cursor-pointer"><span class="flex items-center gap-2"><i data-lucide="archive" class="w-4 h-4 text-indigo-400"></i> Archivados</span><span id="archived-count" class="text-xs font-black text-cyanAccent">0</span></summary><div class="border-t border-slate-800 p-4 space-y-3"><p class="text-[10px] text-slate-400">Clientes visitados archivados. Puede restaurarlos.</p><div id="archived-visits-list" class="space-y-2"></div></div></details>
+        </section>
+
+        <!-- MÓDULO 5: HUB DE COMUNICACIONES WHATSAPP -->
+        <section id="view-mensajes" class="app-view space-y-4">
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3.5">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+                    <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                        <i data-lucide="message-square" class="w-4 h-4 text-whatsapp-500"></i> Generador de Notificaciones Oficiales
+                    </h3>
+                    <span class="text-[10px] font-bold text-whatsapp-500 bg-whatsapp-500/10 px-2 py-0.5 rounded">Enlace de envío a WhatsApp</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2"><button id="edit-wa-formats" type="button" class="touch-btn bg-indigo-600 text-white text-xs font-bold rounded-xl">Editar Formatos</button><button id="create-wa-format" type="button" class="touch-btn bg-cyanAccent text-navy-950 text-xs font-black rounded-xl">Crear nuevo formato</button></div>
+                <!-- Inputs -->
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Tipo de Plantilla Formativa</label>
+                        <select id="wa-template-select" onchange="generateWAMessage()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                            <option value="normalizacion">1. Plan Normalización (Abono directo capital)</option>
+                            <option value="refinanciamiento">2. Propuesta Refinanciamiento Cuota Flexible</option>
+                            <option value="prejuridica">3. Cobranza Pre-Jurídica / Gestión Diaria</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Nombre Completo del Cliente</label>
+                        <input type="text" id="wa-client-input" value="" oninput="generateWAMessage()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-brand-500 focus:outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Teléfono (El Salvador)</label>
+                            <input type="text" id="wa-phone-input" value="" maxlength="8" inputmode="tel" oninput="generateWAMessage()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-mono focus:border-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-400 mb-1">Monto Exigible ($)</label>
+                            <input type="number" step="0.01" id="wa-amount-input" value="" min="0" inputmode="decimal" oninput="generateWAMessage()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-bold focus:border-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Fecha Límite Compromiso</label>
+                        <input type="date" id="wa-date-input" onchange="generateWAMessage()" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-brand-500 focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <div id="wa-custom-fields-card" class="hidden bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3"><div class="flex justify-between"><span class="text-xs font-bold text-cyanAccent">Campos adicionales</span><span id="wa-custom-fields-count" class="text-[10px] text-slate-400">0 campos</span></div><div id="wa-custom-fields-inputs" class="space-y-3"></div></div>
+            <!-- WhatsApp Message Preview Card -->
+            <div class="bg-navy-800 border border-slate-800 p-4 rounded-2xl shadow-md space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-300">Vista Previa Formato WhatsApp</span>
+                    <span class="text-[10px] text-whatsapp-500 font-bold">Vista previa del mensaje</span>
+                </div>
+
+                <div id="wa-preview-text" class="bg-navy-950 p-3.5 rounded-xl border border-slate-800 text-xs text-slate-200 whitespace-pre-line leading-relaxed font-sans shadow-inner">
+                    <!-- Dynamic Text -->
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button onclick="copyWAMessageText()" class="touch-btn bg-navy-700 hover:bg-navy-600 active-scale text-slate-200 text-xs font-bold rounded-xl gap-1.5 border border-slate-600/50">
+                        <i data-lucide="copy" class="w-4 h-4 text-cyanAccent"></i> Copiar Texto
+                    </button>
+                    <button onclick="openWASendModal()" class="touch-btn bg-whatsapp-600 hover:bg-whatsapp-500 active-scale text-white text-xs font-bold rounded-xl gap-2 shadow-lg shadow-whatsapp-600/20">
+                        <i data-lucide="send" class="w-4 h-4"></i> Enviar a WA
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BARRA DE NAVEGACIÓN INFERIOR FIXA TIPO APP NATIVA -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-navy-900/95 backdrop-blur-lg border-t border-slate-800/80 bottom-nav-inset shadow-2xl">
+        <div class="flex justify-around items-center h-16 max-w-lg mx-auto px-1">
+            <button onclick="switchAppTab('panel')" id="nav-btn-panel" class="touch-btn flex-1 flex-col gap-1 py-1 text-brand-500 transition-all">
+                <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                <span class="text-[10px] font-extrabold tracking-tight">Panel</span>
+            </button>
+            <button onclick="switchAppTab('descuentos')" id="nav-btn-descuentos" class="touch-btn flex-1 flex-col gap-1 py-1 text-slate-400 hover:text-slate-200 transition-all">
+                <i data-lucide="percent" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold tracking-tight">Descuentos</span>
+            </button>
+            <button onclick="switchAppTab('avance')" id="nav-btn-avance" class="touch-btn flex-1 flex-col gap-1 py-1 text-slate-400 hover:text-slate-200 transition-all">
+                <i data-lucide="trending-up" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold tracking-tight">Avance</span>
+            </button>
+            <button onclick="switchAppTab('visitas')" id="nav-btn-visitas" class="touch-btn flex-1 flex-col gap-1 py-1 text-slate-400 hover:text-slate-200 transition-all">
+                <i data-lucide="map-pin" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold tracking-tight">Visitas</span>
+            </button>
+            <button onclick="switchAppTab('mensajes')" id="nav-btn-mensajes" class="touch-btn flex-1 flex-col gap-1 py-1 text-slate-400 hover:text-slate-200 transition-all">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+                <span class="text-[10px] font-bold tracking-tight">Mensajes</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MODAL 1: ADD SINGLE VISIT -->
+    <div id="modal-add-visit" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-navy-900 border border-slate-800 w-full max-w-sm rounded-2xl p-4 space-y-3.5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-xs font-bold text-white">Registrar Nuevo Cliente</h3>
+                <button onclick="toggleAddVisitModal()" class="text-slate-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <form id="form-add-visit" onsubmit="event.preventDefault(); saveSingleVisit();" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Nombre del Cliente</label>
+                    <input type="text" id="modal-vis-name" required placeholder="Ej: Roberto Carlos" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-brand-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">DUI del Cliente</label>
+                    <input type="text" id="modal-vis-dui" placeholder="00000000-0" inputmode="numeric" oninput="formatDUI(this)" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-mono focus:border-brand-500 focus:outline-none">
+                </div>
+                
+                
+                <div class="pt-2 flex gap-2">
+                    <button type="button" onclick="toggleAddVisitModal()" class="touch-btn flex-1 bg-navy-800 text-slate-300 text-xs font-bold rounded-xl">Cancelar</button>
+                    <button type="submit" class="touch-btn flex-1 bg-brand-600 text-white text-xs font-bold rounded-xl shadow-md">Guardar Visita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: BULK VISITS PASTE -->
+    <div id="modal-bulk-visits" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-navy-900 border border-slate-800 w-full max-w-sm rounded-2xl p-4 space-y-3.5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-xs font-bold text-white">Carga Masiva de Clientes</h3>
+                <button onclick="toggleBulkVisitsModal()" class="text-slate-400 hover:text-white p-1">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="space-y-2">
+                <p class="text-[11px] text-slate-400">Pegue un cliente por línea: Nombre  DUI  Municipio. Use dos espacios o tabulación:</p>
+                <textarea id="bulk-visits-text" rows="6" placeholder="Juan Pérez  000000000  Armenia&#10;José Vásquez  111111111  Colón" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white font-mono focus:border-brand-500 focus:outline-none"></textarea>
+            </div>
+            <div class="flex gap-2 pt-1">
+                <button onclick="toggleBulkVisitsModal()" class="touch-btn flex-1 bg-navy-800 text-slate-300 text-xs font-bold rounded-xl">Cancelar</button>
+                <button onclick="processBulkVisits()" class="touch-btn flex-1 bg-cyanAccent text-navy-950 text-xs font-black rounded-xl shadow-md">Procesar Lista</button>
+            </div>
+        </div>
+    </div>
+
+<div id="modal-week-editor" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="indicator-card w-full max-w-sm p-4 space-y-4 max-h-[92vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-slate-800/70 pb-3">
+            <div><h3 id="week-editor-title" class="text-sm font-bold text-white">Agregar semana</h3><p class="text-[10px] text-slate-400">La eficiencia ponderada se calcula: Cobranza ÷ Requerido</p></div>
+            <button type="button" onclick="closeWeekEditor()" class="touch-btn min-h-[36px] w-9 rounded-lg bg-navy-800 text-slate-300" aria-label="Cerrar">✕</button>
+        </div>
+        <form id="week-editor-form" class="space-y-3">
+            <input id="edit-week-original" type="hidden">
+            <label class="block text-[10px] text-slate-400">Número de semana
+                <input id="edit-week-number" type="number" min="1" step="1" inputmode="numeric" required class="metric-mono mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-sm text-white" placeholder="Ej. 1">
+            </label>
+            <label class="block text-[10px] text-slate-400">Requerido
+                <div class="relative mt-1"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span><input id="edit-required" type="number" min="0.01" step="0.01" inputmode="decimal" required class="metric-mono w-full bg-navy-950 border border-slate-700 rounded-xl py-3 pl-7 pr-3 text-sm text-white" placeholder="0.00"></div>
+            </label>
+            <label class="block text-[10px] text-slate-400">Cobranza
+                <div class="relative mt-1"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span><input id="edit-collection" type="number" min="0" step="0.01" inputmode="decimal" required class="metric-mono w-full bg-navy-950 border border-slate-700 rounded-xl py-3 pl-7 pr-3 text-sm text-white" placeholder="0.00"></div>
+            </label>
+            <div class="grid grid-cols-2 gap-2">
+                <label class="block text-[10px] text-slate-400">Cartera parcial
+                    <input id="edit-partial-portfolio" type="number" min="0.01" step="0.01" inputmode="decimal" required class="metric-mono mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-sm text-white" placeholder="0.00">
+                </label>
+                <label class="block text-[10px] text-slate-400">Pase
+                    <input id="edit-pass-amount" type="number" min="0" step="0.01" inputmode="decimal" required class="metric-mono mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-sm text-white" placeholder="0.00">
+                </label>
+                <label class="block text-[10px] text-slate-400">Regresos
+                    <input id="edit-returns" type="number" min="0" step="0.01" inputmode="decimal" required class="metric-mono mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-sm text-white" placeholder="0.00">
+                </label>
+                <label class="block text-[10px] text-slate-400">Regresos seg. anterior
+                    <input id="edit-prev-returns" type="number" min="0" step="0.01" inputmode="decimal" required class="metric-mono mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-sm text-white" placeholder="0.00">
+                </label>
+                <label class="block col-span-2 text-[10px] text-slate-400">Cartera total
+                    <input id="edit-total-portfolio" type="number" min="0.01" step="0.01" inputmode="decimal" required class="metric-mono mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-sm text-white" placeholder="0.00">
+                </label>
+            </div>
+            <div class="p-3 rounded-xl bg-cyan-500/10 border border-cyan-400/25 flex justify-between items-center"><span class="text-xs text-slate-300">Eficiencia calculada</span><strong id="edit-efficiency-preview" class="metric-number text-cyanAccent">0.00%</strong></div>
+            <div class="flex gap-2 pt-1"><button type="button" onclick="closeWeekEditor()" class="touch-btn flex-1 bg-navy-800 rounded-xl">Cancelar</button><button type="submit" class="touch-btn flex-1 bg-brand-600 rounded-xl font-bold">Guardar semana</button></div>
+        </form>
+    </div>
+</div>
+    <!-- MODAL: EDITAR CLIENTE -->
+    <div id="modal-edit-visit" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-navy-900 border border-slate-800 w-full max-w-sm rounded-2xl p-4 space-y-3 shadow-2xl">
+        <div class="flex justify-between"><h3 class="text-sm font-bold">Editar cliente</h3><button onclick="closeEditVisit()">✕</button></div>
+        <input id="edit-visit-id" type="hidden">
+        <input id="edit-visit-name" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-3" placeholder="Nombre">
+        <input id="edit-visit-dui" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-3" placeholder="00000000-0" oninput="formatDUI(this)">
+        
+        
+        <div class="flex gap-2"><button onclick="closeEditVisit()" class="touch-btn flex-1 bg-navy-800 rounded-xl">Cancelar</button><button onclick="saveEditedVisit()" class="touch-btn flex-1 bg-brand-600 rounded-xl font-bold">Guardar cambios</button></div>
+      </div>
+    </div>
+    <!-- MODAL 3: WHATSAPP APP SELECTOR -->
+    <div id="modal-wa-send" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-navy-900 border border-slate-800 w-full max-w-xs rounded-2xl p-4 space-y-3.5 shadow-2xl text-center">
+            <h3 class="text-xs font-extrabold text-white">Seleccionar Aplicación WhatsApp</h3>
+            <p class="text-[11px] text-slate-400">Elija la versión de WhatsApp instalada en su dispositivo móvil:</p>
+            
+            <div class="space-y-2 pt-1">
+                <button onclick="executeWASend('standard')" class="touch-btn w-full bg-whatsapp-600 hover:bg-whatsapp-500 active-scale text-white text-xs font-bold rounded-xl gap-2 shadow-md">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Normal
+                </button>
+                <button onclick="executeWASend('business')" class="touch-btn w-full bg-whatsapp-700 hover:bg-whatsapp-600 active-scale text-white text-xs font-bold rounded-xl gap-2 shadow-md">
+                    <i data-lucide="briefcase" class="w-4 h-4"></i> WhatsApp Business
+                </button>
+            </div>
+
+            <button onclick="closeWASendModal()" class="text-xs text-slate-400 underline pt-1 block mx-auto">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL 4: USER PROFILE SELECTOR -->
+    <div id="modal-profile" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-navy-900 border border-slate-800 w-full max-w-xs rounded-2xl p-4 space-y-3 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-xs font-bold text-white">Perfil Operativo</h3>
+                <button onclick="toggleProfileModal()" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs"><label class="text-slate-400">Gestor (4 a 6 dígitos)<input id="profile-code" type="text" inputmode="numeric" minlength="4" maxlength="6" pattern="[0-9]{4,6}" value="" class="mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-white font-mono"></label><label class="text-slate-400">Segmento<select id="profile-segment" class="mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-2.5 text-white"><option>Mora 30</option><option>Mora 60</option><option>Mora 90</option><option>Mora 180</option></select></label><button id="save-profile" class="touch-btn w-full bg-brand-600 rounded-xl text-white font-bold">Guardar perfil</button>
+            <details class="rounded-xl border border-slate-700 p-3"><summary class="cursor-pointer font-bold text-cyanAccent">Política editable de puntaje y comisión</summary>
+              <div class="mt-3 space-y-2">
+                <label class="block text-slate-400">Versión<input id="policy-version" class="mt-1 w-full bg-navy-950 border border-slate-700 rounded-lg p-2 text-white"></label>
+                <label class="block text-slate-400">Fecha de vigencia<input id="policy-date" type="date" class="mt-1 w-full bg-navy-950 border border-slate-700 rounded-lg p-2 text-white"></label>
+                <label class="block text-slate-400">Configuración JSON<textarea id="policy-json" rows="8" class="mt-1 w-full bg-navy-950 border border-slate-700 rounded-lg p-2 text-white font-mono"></textarea></label>
+                <button id="save-policy" type="button" class="touch-btn w-full bg-cyanAccent text-navy-950 rounded-xl font-black">Guardar política</button><button id="add-new-policy" type="button" class="touch-btn w-full bg-indigo-600 text-white rounded-xl font-bold">Agregar nueva política</button>
+              </div>
+            </details></div><button onclick="deleteCurrentSegmentData()" class="touch-btn w-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs font-bold rounded-xl gap-1.5"><i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar datos del segmento actual</button><button onclick="resetAppState()" class="touch-btn w-full bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 border border-rose-500/30 text-xs font-bold rounded-xl gap-1.5">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Restablecer Datos de App
+            </button>
+        </div>
+    </div>
+
+    <div id="modal-whatsapp-channel" class="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4"><div class="bg-navy-900 border border-slate-700 rounded-2xl p-4 w-full max-w-xs space-y-3 shadow-2xl"><h3 class="font-bold text-white">¿Por qué medio desea enviar?</h3><p class="text-[11px] text-slate-400">Seleccione la versión de WhatsApp que utilizará.</p><button type="button" onclick="sendUniversalWhatsApp('normal')" class="touch-btn w-full bg-whatsapp-600 rounded-xl font-bold">WhatsApp Normal</button><button type="button" onclick="sendUniversalWhatsApp('business')" class="touch-btn w-full bg-whatsapp-700 rounded-xl font-bold">WhatsApp Business</button><button type="button" onclick="sendUniversalWhatsApp('web')" class="touch-btn w-full bg-brand-600 rounded-xl font-bold">WhatsApp Web</button><button type="button" onclick="closeUniversalWhatsApp()" class="touch-btn w-full bg-navy-800 rounded-xl">Cancelar</button></div></div>
+    <div id="modal-new-policy" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4"><div class="bg-navy-900 border border-slate-700 w-full max-w-md rounded-2xl p-4 space-y-4 max-h-[92vh] overflow-y-auto"><div class="flex justify-between"><div><h3 class="font-bold">Agregar nueva política</h3><p class="text-[10px] text-slate-400">Seleccione el segmento que se aplicará.</p></div><button id="close-new-policy">✕</button></div><label class="block text-xs text-slate-400">Segmento<select id="new-policy-segment" class="mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-white"><option>Mora 30</option><option>Mora 60</option><option>Mora 90</option><option>Mora 180</option></select></label><div class="grid grid-cols-2 gap-2"><label class="text-xs text-slate-400">Versión<input id="new-policy-version" class="mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-white"></label><label class="text-xs text-slate-400">Vigencia<input id="new-policy-date" type="date" class="mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-white"></label></div><label class="block text-xs text-slate-400">Configuración JSON<textarea id="new-policy-json" rows="12" class="mt-1 w-full bg-navy-950 border border-slate-700 rounded-xl p-3 text-white font-mono text-[11px]"></textarea></label><div class="flex gap-2"><button id="cancel-new-policy" class="touch-btn flex-1 bg-navy-800 rounded-xl">Cancelar</button><button id="save-new-policy" class="touch-btn flex-1 bg-indigo-600 rounded-xl font-bold">Guardar nueva política</button></div></div></div>
+    <!-- TOAST NOTIFICATION FLOATING BANNER -->
+    <div id="app-toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-slate-700 text-white px-4 py-2.5 rounded-full shadow-2xl text-xs font-semibold flex items-center gap-2 -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toast-message-text">Notificación ejecutada</span>
+    </div>
+
+    <!-- LOGICA JAVASCRIPT NATIVA PURA INTEGRADA -->
+    <script>
+        // ALMACENAMIENTO SEGURO PARA ARCHIVO LOCAL Y VISTAS PROTEGIDAS
+        const safeStorage = (() => {
+            const memory = new Map();
+            let nativeStorage = null;
+            try {
+                nativeStorage = window.localStorage;
+                nativeStorage.setItem('__GESTOR_TEST__', '1');
+                nativeStorage.removeItem('__GESTOR_TEST__');
+            } catch (error) {
+                nativeStorage = null;
+                console.warn('Almacenamiento persistente bloqueado; se usará memoria temporal.');
+            }
+            return {
+                getItem(key){ try { return nativeStorage ? nativeStorage.getItem(key) : (memory.get(key) ?? null); } catch { return memory.get(key) ?? null; } },
+                setItem(key,value){ const text=String(value); memory.set(key,text); try { nativeStorage?.setItem(key,text); } catch {} },
+                removeItem(key){ memory.delete(key); try { nativeStorage?.removeItem(key); } catch {} },
+                clear(){ memory.clear(); try { nativeStorage?.clear(); } catch {} }
+            };
+        })();
+
+        // ESTADO GLOBAL CON PERSISTENCIA LOCALSTORAGE
+        const DEFAULT_STATE = {
+            panelKPIs: {
+                weekNumber: 0, required: 0, collection: 0, partialPortfolio: 0,
+                passAmount: 0, returnsAmount: 0, prevReturns: 0, totalPortfolio: 0,
+                selectedWeekNumbers: [], eficiencia: 0, pase: 0, regresos: 0, recuperado: 0
+            },
+            historyWeeks: [],
+            discountFlow: 'electronic',
+            visits: [],
+            visitsSortAZ: false
+        };
+
+        function cloneDefaultState(){ return JSON.parse(JSON.stringify(DEFAULT_STATE)); }
+        function getLocalDateKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+        let AppState;
+        try { AppState = JSON.parse(safeStorage.getItem('MOBILE_COBRANZA_STATE')) || cloneDefaultState(); }
+        catch(error) { console.error('Estado local dañado', error); AppState = cloneDefaultState(); safeStorage.removeItem('MOBILE_COBRANZA_STATE'); }
+
+        function saveAppState() {
+            safeStorage.setItem('MOBILE_COBRANZA_STATE', JSON.stringify(AppState));
+        }
+
+        // CONTROLADOR DE PESTAÑAS (SINGLE PAGE APPLICATION)
+        function switchAppTab(tabId) {
+            document.querySelectorAll('.app-view').forEach(view => {
+                view.classList.remove('active');
+            });
+
+            const navBtns = ['panel', 'descuentos', 'avance', 'visitas', 'mensajes'];
+            navBtns.forEach(id => {
+                const btn = document.getElementById(`nav-btn-${id}`);
+                if (id === tabId) {
+                    btn.classList.add('text-brand-500');
+                    btn.classList.remove('text-slate-400');
+                } else {
+                    btn.classList.remove('text-brand-500');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+
+            const targetView = document.getElementById(`view-${tabId}`);
+            if (targetView) targetView.classList.add('active');
+
+            // Modular view triggers
+            if (tabId === 'panel') renderDashboardChartCanvas();
+            if (tabId === 'avance') renderAvancePNGCanvas();
+            if (tabId === 'visitas') renderVisitsList();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // MÓDULO 1: PANEL SEMANAL LOGIC & CANVAS
+        // MÓDULO 2: SOLICITUD DE DESCUENTOS LOGIC
+        function setDiscountFlow(type) {
+            AppState.discountFlow = type;
+            const manualFields = document.getElementById('manual-extra-fields');
+            if (manualFields) manualFields.classList.toggle('hidden', type !== 'manual');
+            const btnElec = document.getElementById('flow-btn-electronic');
+            const btnMan = document.getElementById('flow-btn-manual');
+            const badge = document.getElementById('disc-flow-badge');
+
+            if (type === 'electronic') {
+                btnElec.className = 'touch-btn flex-1 rounded-xl text-xs font-bold transition-all bg-brand-600 text-white shadow';
+                btnMan.className = 'touch-btn flex-1 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white';
+                badge.textContent = 'AUTOMÁTICO';
+                badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-brand-500/20 text-brand-400';
+            } else {
+                btnMan.className = 'touch-btn flex-1 rounded-xl text-xs font-bold transition-all bg-brand-600 text-white shadow';
+                btnElec.className = 'touch-btn flex-1 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white';
+                badge.textContent = 'MANUAL EXCEPCIÓN';
+                badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400';
+            }
+            calculateDiscount();
+        }
+
+        function formatDUI(input) {
+            let val = input.value.replace(/\D/g, '');
+            if (val.length > 8) {
+                val = val.substring(0, 8) + '-' + val.substring(8, 9);
+            }
+            input.value = val.substring(0, 10);
+        }
+
+        function syncManualOffered() {
+            if (AppState.discountFlow !== 'manual') return;
+            const previous = Number(document.getElementById('disc-abonos-anteriores')?.value) || 0;
+            const today = Number(document.getElementById('disc-pago-hoy')?.value) || 0;
+            document.getElementById('disc-offered').value = (previous + today).toFixed(2);
+        }
+        function validateDiscount(showMessage=false) {
+            const digits = id => (document.getElementById(id)?.value || '').replace(/\D/g,'');
+            const capital = Number(document.getElementById('disc-capital').value);
+            const mora = Number(document.getElementById('disc-mora').value) || 0;
+            const offered = Number(document.getElementById('disc-offered').value) || 0;
+            const days = Number(document.getElementById('disc-dias-mora').value);
+            const reason = document.getElementById('disc-razon').value.trim();
+            const errors=[];
+            if (!(capital > 0)) errors.push('El capital debe ser mayor que cero.');
+            if (!Number.isInteger(days) || days < 0) errors.push('Días de mora debe ser entero y no negativo.');
+            if (digits('disc-dui').length !== 9) errors.push('El DUI debe contener exactamente 9 dígitos.');
+            if (digits('disc-ref').length !== 10) errors.push('La referencia debe contener exactamente 10 dígitos.');
+            if (digits('disc-contacto').length !== 8) errors.push('El teléfono debe contener 8 dígitos nacionales.');
+            if (offered > mora) errors.push('El saldo a pagar o abono no puede superar el saldo en mora.');
+            if (showMessage && errors.length) showAppToast(errors[0]);
+            return errors;
+        }
+        function calculateDiscount() {
+            if (AppState.discountFlow === 'manual') syncManualOffered();
+            const capital = Math.max(0, Number(document.getElementById('disc-capital').value) || 0);
+            const mora = Math.max(0, Number(document.getElementById('disc-mora').value) || 0);
+            const offered = Math.max(0, Number(document.getElementById('disc-offered').value) || 0);
+            const totalDeuda = capital + mora;
+            const discountAmount = Math.max(0, mora - offered);
+            const discountPercent = mora > 0 ? discountAmount / mora * 100 : 0;
+            const totalDebtNode=document.getElementById('res-total-deuda');if(totalDebtNode)totalDebtNode.textContent='$'+totalDeuda.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+            document.getElementById('res-monto-descuento').textContent = '$' + discountAmount.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+            document.getElementById('res-percent-descuento').textContent = discountPercent.toFixed(2) + '%';
+            const badge=document.getElementById('res-badge-status');
+            badge.textContent = validateDiscount(false).length ? 'DATOS PENDIENTES DE VALIDACIÓN' : 'RESULTADO PRELIMINAR, SUJETO A VALIDACIÓN';
+            badge.className='px-2.5 py-0.5 text-[10px] font-extrabold rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        }
+        function getDiscountSummaryString() {
+            const val = id => document.getElementById(id)?.value?.trim() || '';
+            const cash = id => '$' + (Number(document.getElementById(id)?.value) || 0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+            const common = {name:val('disc-name')||'NO ESPECIFICADO',dui:val('disc-dui')||'NO ESPECIFICADO',ref:val('disc-ref')||'NO ESPECIFICADO',product:val('disc-producto'),days:val('disc-dias-mora')||'0',contact:val('disc-contacto')||'NO ESPECIFICADO',reason:val('disc-razon')||'NO ESPECIFICADA',auth:val('disc-autorizado')||'NO ESPECIFICADA'};
+            const discount = document.getElementById('res-monto-descuento').textContent;
+            const pct = document.getElementById('res-percent-descuento').textContent;
+            if (AppState.discountFlow === 'manual') return `DESCUENTO MANUAL
+Cliente: ${common.name}
+DUI: ${common.dui}
+Referencia: ${common.ref}
+Producto: ${common.product}
+Saldo en mora: ${cash('disc-mora')}
+Abonos anteriores: ${cash('disc-abonos-anteriores')}
+Pago de hoy: ${cash('disc-pago-hoy')}
+Monto descontado: ${discount}
+% Descuento: ${pct}
+Razón de descuento: ${common.reason}
+Número de contacto: ${common.contact}
+Saldo capital: ${cash('disc-capital')}
+Días mora: ${common.days}
+Gasto de reserva: ${cash('disc-gasto-reserva')}
+Reserva proyectada: ${cash('disc-reserva-proyectada')}
+Descuento autorizado por: ${common.auth}
+Flujo: MANUAL`;
+            return `FLUJO ELECTRONICO
+Cliente: ${common.name}
+DUI: ${common.dui}
+Referencia: ${common.ref}
+Días Mora: ${common.days}
+Producto: ${common.product}
+Saldo Capital: ${cash('disc-capital')}
+Saldo en Mora: ${cash('disc-mora')}
+Saldo a Pagar: ${cash('disc-offered')}
+Descuento: ${discount}
+% de Descuento: ${pct}
+Gasto de Reserva: ${cash('disc-gasto-reserva')}
+Reserva Proyectada: ${cash('disc-reserva-proyectada')}
+Razón de Descuento: ${common.reason}
+Número de Contacto: ${common.contact}
+Autorización de: ${common.auth}
+Flujo: ELECTRÓNICO`;
+        }
+        function copyDiscountText() {
+            if (validateDiscount(true).length) return;
+            const text = getDiscountSummaryString();
+            executeClipboardCopy(text);
+            showAppToast('Dictamen copiado al portapapeles');
+        }
+
+        function downloadDiscountTXT() {
+            if (validateDiscount(true).length) return;
+            const text = getDiscountSummaryString();
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Solicitud_Descuento_${document.getElementById('disc-ref').value || 'Cliente'}.txt`;
+            link.click();
+            showAppToast('Archivo TXT descargado');
+        }
+
+        function sendDiscountWhatsApp(){if(validateDiscount(true).length)return;openUniversalWhatsApp({text:getDiscountSummaryString()});}
+
+        // MÓDULO 3: AVANCE DIARIO DE COBRANZA LOGIC & CANVAS PNG (1080x1350)
+        function calculateAvanceTotal() {
+            const covid = parseFloat(document.getElementById('av-covid').value) || 0;
+            const reest = parseFloat(document.getElementById('av-reestructurado').value) || 0;
+            const exist = parseFloat(document.getElementById('av-existente').value) || 0;
+            const nuevo = parseFloat(document.getElementById('av-nuevo').value) || 0;
+            const prod = parseFloat(document.getElementById('av-produce').value) || 0;
+            const ref = parseFloat(document.getElementById('av-refinanciamiento').value) || 0;
+
+            const total = covid + reest + exist + nuevo + prod + ref;
+            document.getElementById('av-total-sum').textContent = '$' + total.toLocaleString('en-US', {minimumFractionDigits: 2});
+        }
+
+        const AVANCE_DAILY_KEY = 'GESTOR_AVANCE_DIARIO_V2';
+        const avanceIds=['av-covid','av-reestructurado','av-existente','av-nuevo','av-produce','av-refinanciamiento','av-cobranza','av-visitas','av-reserva-8-10','av-reserva-11-13','av-reserva-14-16'];
+        function moneyAvance(value){return '$'+(Number(value)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+        function saveDailyAvance(){const all=JSON.parse(safeStorage.getItem(AVANCE_DAILY_KEY)||'{}'),date=getLocalDateKey();all[date]=Object.fromEntries(avanceIds.map(id=>[id,document.getElementById(id)?.value||0]));safeStorage.setItem(AVANCE_DAILY_KEY,JSON.stringify(all));}
+        function loadDailyAvance(){try{const date=getLocalDateKey(),data=JSON.parse(safeStorage.getItem(AVANCE_DAILY_KEY)||'{}')[date];if(data)avanceIds.forEach(id=>{if(document.getElementById(id)&&data[id]!==undefined)document.getElementById(id).value=data[id]});}catch(e){}}
+        function getAvanceTXT(){const time=document.getElementById('av-report-time')?.value||'Avance';const total=['av-covid','av-reestructurado','av-existente','av-nuevo','av-produce','av-refinanciamiento'].reduce((a,id)=>a+(Number(document.getElementById(id)?.value)||0),0);return `📊 ${time==='6:00 PM'?'CIERRE DIARIO':'AVANCE DIARIO · '+time}
+COVID: ${moneyAvance(document.getElementById('av-covid').value)}
+Reestructurado: ${moneyAvance(document.getElementById('av-reestructurado').value)}
+Existente: ${moneyAvance(document.getElementById('av-existente').value)}
+Nuevo: ${moneyAvance(document.getElementById('av-nuevo').value)}
+Produce e Invierte: ${moneyAvance(document.getElementById('av-produce').value)}
+Refinanciamiento: ${moneyAvance(document.getElementById('av-refinanciamiento').value)}
+🔢 Total: ${moneyAvance(total)}
+💰 Cobranza: ${moneyAvance(document.getElementById('av-cobranza').value)}
+🚶 Visitas: ${Number(document.getElementById('av-visitas').value)||0}
+
+📌 RECUPERACIONES
+Reserva 8-10: ${moneyAvance(document.getElementById('av-reserva-8-10').value)}
+Reserva 11-13: ${moneyAvance(document.getElementById('av-reserva-11-13').value)}
+Reserva 14-16: ${moneyAvance(document.getElementById('av-reserva-14-16').value)}`;}
+        function copyAvanceTXT(){executeClipboardCopy(getAvanceTXT());showAppToast('Avance copiado en formato TXT');}
+        function downloadAvanceTXT(){const b=new Blob([getAvanceTXT()],{type:'text/plain;charset=utf-8'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=`Avance_${getLocalDateKey()}.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+        function roundedRectPath(ctx,x,y,w,h,r){
+            r=Math.min(r,w/2,h/2); ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+        }
+        function fillRoundedRect(ctx,x,y,w,h,r,fill,stroke){
+            roundedRectPath(ctx,x,y,w,h,r); if(fill){ctx.fillStyle=fill;ctx.fill();} if(stroke){ctx.strokeStyle=stroke;ctx.stroke();}
+        }
+        function fitText(ctx,text,maxWidth,startSize,minSize=16,font='JetBrains Mono'){
+            let size=startSize; do{ctx.font=`700 ${size}px ${font}, monospace`; if(ctx.measureText(text).width<=maxWidth) break; size-=2;}while(size>minSize); return size;
+        }
+        function drawWrappedText(ctx,text,x,y,maxWidth,lineHeight,maxLines=2){
+            const words=String(text).split(/\s+/); let line='',lines=[]; for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word;}else line=test;}if(line)lines.push(line);lines.slice(0,maxLines).forEach((ln,i)=>ctx.fillText(ln,x,y+i*lineHeight));
+        }
+        function renderAvancePNGCanvas() {
+            const canvas=document.getElementById('canvasAvanceExport'); if(!canvas) return;
+            try{
+                const ctx=canvas.getContext('2d'); canvas.width=1080; canvas.height=1350;
+                const grad=ctx.createLinearGradient(0,0,1080,1350);grad.addColorStop(0,'#06111f');grad.addColorStop(1,'#102942');ctx.fillStyle=grad;ctx.fillRect(0,0,1080,1350);
+                const manager=(document.getElementById('top-manager-name')?.value||'GESTOR SIN IDENTIFICAR').trim().toUpperCase();
+                const time=document.getElementById('av-report-time')?.value||'AVANCE';
+                fillRoundedRect(ctx,50,45,980,190,28,'#10243a','#27446b');ctx.lineWidth=2;
+                ctx.fillStyle='#00d9e6';ctx.font='700 22px JetBrains Mono';ctx.fillText('GESTIÓN INTEGRADA DE COBRANZAS',85,92);
+                ctx.fillStyle='#fff';fitText(ctx,'INFORME EJECUTIVO DE AVANCE',900,42,28);ctx.fillText('INFORME EJECUTIVO DE AVANCE',85,145);
+                ctx.fillStyle='#9fb0c4';ctx.font='500 19px JetBrains Mono';drawWrappedText(ctx,`GESTOR: ${manager}`,85,185,610,25,2);ctx.textAlign='right';ctx.fillText(`${new Date().toLocaleDateString('es-SV')} · ${time}`,995,185);ctx.textAlign='left';
+                const ids=['av-covid','av-reestructurado','av-existente','av-nuevo','av-produce','av-refinanciamiento'];const total=ids.reduce((a,id)=>a+(Number(document.getElementById(id)?.value)||0),0);const cobranza=Number(document.getElementById('av-cobranza')?.value)||0;
+                fillRoundedRect(ctx,50,265,480,170,24,'#0d1e31','#00adb5');fillRoundedRect(ctx,550,265,480,170,24,'#0d1e31','#05f19c');
+                ctx.fillStyle='#91a4ba';ctx.font='700 20px JetBrains Mono';ctx.fillText('TOTAL REGRESOS',80,315);ctx.fillText('COBRANZA INDEPENDIENTE',580,315);
+                ctx.fillStyle='#00d9e6';ctx.textAlign='right';fitText(ctx,moneyAvance(total),400,48,28);ctx.fillText(moneyAvance(total),500,390);ctx.fillStyle='#05f19c';fitText(ctx,moneyAvance(cobranza),400,48,28);ctx.fillText(moneyAvance(cobranza),1000,390);ctx.textAlign='left';
+                ctx.fillStyle='#fff';ctx.font='700 26px JetBrains Mono';ctx.fillText('DESGLOSE POR PRODUCTO',50,490);
+                const products=[['COVID', 'av-covid'],['Reestructurado','av-reestructurado'],['Existente','av-existente'],['Nuevo','av-nuevo'],['Produce e Invierte','av-produce'],['Refinanciamiento','av-refinanciamiento']];let y=525;
+                products.forEach((p,i)=>{fillRoundedRect(ctx,50,y,980,70,15,i%2?'#10243a':'#0d1e31');ctx.fillStyle='#eef4fb';ctx.font='500 22px JetBrains Mono';drawWrappedText(ctx,p[0],80,y+43,520,24,1);const value=moneyAvance(document.getElementById(p[1])?.value);ctx.fillStyle='#65dce5';ctx.textAlign='right';fitText(ctx,value,330,26,18);ctx.fillText(value,995,y+44);ctx.textAlign='left';y+=80;});
+                fillRoundedRect(ctx,50,1025,980,220,24,'#0d1e31','#27446b');ctx.fillStyle='#fff';ctx.font='700 24px JetBrains Mono';ctx.fillText('GESTIÓN COMPLEMENTARIA',80,1070);ctx.fillStyle='#a9b7c8';ctx.font='500 20px JetBrains Mono';ctx.fillText(`Visitas realizadas: ${Math.max(0,parseInt(document.getElementById('av-visitas')?.value)||0)}`,80,1115);
+                const reserves=[['Reserva 8-10','av-reserva-8-10'],['Reserva 11-13','av-reserva-11-13'],['Reserva 14-16','av-reserva-14-16']];reserves.forEach((r,i)=>{const x=80+i*315;ctx.fillStyle='#91a4ba';ctx.font='500 16px JetBrains Mono';ctx.fillText(r[0],x,1160);ctx.fillStyle='#fff';ctx.font='700 21px JetBrains Mono';ctx.fillText(moneyAvance(document.getElementById(r[1])?.value),x,1195);});
+                ctx.fillStyle='#72849a';ctx.font='500 15px JetBrains Mono';ctx.fillText(`Generado localmente · ${new Date().toLocaleString('es-SV')} · Validar contra fuente oficial`,50,1310);
+                showAppToast('Ficha ejecutiva actualizada correctamente');
+            }catch(error){console.error(error);showAppToast('No fue posible generar la ficha PNG');}
+        }
+        function downloadAvancePNG() {
+            const canvas = document.getElementById('canvasAvanceExport');
+            const link = document.createElement('a');
+            link.download = `Avance_Diario_${getLocalDateKey()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showAppToast('Ficha HD PNG guardada en galería');
+        }
+
+        function shareAvanceWhatsAppText(){saveDailyAvance();openUniversalWhatsApp({text:getAvanceTXT()});}
+        // MÓDULO 4: CONTROL DE CLIENTES VISITADOS (META 85%) LOGIC
+        function escapeHTML(value){ return String(value ?? '').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
+        function renderVisitsList() {
+            const container = document.getElementById('visits-touch-list');
+            if (!container) return;
+
+            const searchTerm = (document.getElementById('visit-search-input')?.value || '').toLowerCase();
+            
+            let filtered = AppState.visits.filter(v => v.name.toLowerCase().includes(searchTerm) || (v.dui || '').includes(searchTerm));
+            filtered.sort((a,b) => Number(a.done)-Number(b.done) || (AppState.visitsSortAZ ? a.name.localeCompare(b.name) : a.id-b.id));
+
+            container.innerHTML = filtered.map(item => `
+                <div class="bg-navy-800 border ${item.done ? 'border-emerald-500/40 bg-emerald-950/10' : 'border-slate-800'} p-3.5 rounded-2xl shadow-md space-y-2">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="text-xs font-bold text-white">${escapeHTML(item.name)}</h4>
+                            <span class="text-[10px] text-slate-400 font-mono">${escapeHTML(item.dui)}</span>
+                        </div>
+                        <span class="px-2 py-0.5 text-[9px] font-bold rounded ${item.done ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-700 text-slate-300'}">
+                            ${item.done ? 'VISITADO' : 'PENDIENTE'}
+                        </span>
+                    </div>
+
+                    <p class="text-[11px] text-slate-300 flex items-center gap-1">
+                        <i data-lucide="map-pin" class="w-3 h-3 text-cyanAccent shrink-0"></i> ${escapeHTML(item.address)}
+                    </p>
+
+                    <div class="flex justify-between items-center pt-1 border-t border-slate-800/80">
+                        <span class="text-[10px] font-semibold text-brand-400">${escapeHTML(item.result)}</span>
+                        <div class="flex gap-2 flex-wrap justify-end">
+                            <button type="button" data-action="edit-visit" data-visit-id="${item.id}" class="js-edit-visit touch-btn min-h-[36px] px-3 bg-brand-600 text-white active-scale text-xs font-bold rounded-xl gap-1">
+                                ✎ Editar
+                            </button>
+                            <button type="button" onclick="toggleVisitState(${item.id})" class="touch-btn min-h-[36px] px-3 ${item.done ? 'bg-slate-700 text-slate-200' : 'bg-emerald-600 text-white'} active-scale text-xs font-bold rounded-xl gap-1">
+                                ${item.done ? '↶ Deshacer' : '✓ Visitado'}
+                            </button>
+                            <button onclick="deleteVisitItem(${item.id})" class="p-2 text-slate-500 hover:text-rose-400">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateVisitCoverageStats();
+            if (window.lucide) lucide.createIcons();
+        }
+
+        window.openEditVisit = function(id){const v=AppState.visits.find(x=>x.id===id);if(!v)return;document.getElementById('edit-visit-id').value=id;document.getElementById('edit-visit-name').value=v.name||'';document.getElementById('edit-visit-dui').value=v.dui||'';const m=document.getElementById('modal-edit-visit');m.classList.remove('hidden');m.classList.add('flex');};
+        window.closeEditVisit = function(){const m=document.getElementById('modal-edit-visit');m.classList.add('hidden');m.classList.remove('flex');};
+        window.saveEditedVisit = function(){const id=Number(document.getElementById('edit-visit-id').value),v=AppState.visits.find(x=>x.id===id);if(!v)return;const name=document.getElementById('edit-visit-name').value.trim();if(!name){showAppToast('Ingrese el nombre del cliente');return;}Object.assign(v,{name,dui:document.getElementById('edit-visit-dui').value.trim(),status:v.status||'Gestión en curso'});saveAppState();closeEditVisit();renderVisitsList();showAppToast('Datos del cliente actualizados');};
+        function toggleVisitState(id) {
+            const visit = AppState.visits.find(v => v.id === id);
+            if (visit) {
+                visit.done = !visit.done;
+                saveAppState();
+                renderVisitsList();
+                showAppToast(visit.done ? 'Cliente marcado como visitado' : 'Visita deshecha');
+            }
+        }
+
+        function deleteVisitItem(id) {
+            const visit = AppState.visits.find(v => v.id === id);
+            if (!visit) return;
+            if (!confirm(`¿Eliminar definitivamente a ${visit.name || 'este cliente'}?`)) return;
+            AppState.visits = AppState.visits.filter(v => v.id !== id);
+            saveAppState();
+            renderVisitsList();
+            showAppToast('Registro de cliente eliminado');
+        }
+
+        function updateVisitCoverageStats() {
+            const total = AppState.visits.length;
+            const done = AppState.visits.filter(v => v.done).length;
+            const targetReq = Math.ceil(total * 0.85);
+            const pending = Math.max(0, targetReq - done);
+            const pct = total > 0 ? Math.min(100, Math.round((done / total) * 100)) : 0;
+
+            document.getElementById('visit-stat-total').textContent = total;
+            document.getElementById('visit-stat-done').textContent = done;
+            document.getElementById('visit-stat-target').textContent = targetReq;
+            document.getElementById('visit-stat-pending').textContent = pending; const pendingTotalNode=document.getElementById('visit-stat-pending-total'); if(pendingTotalNode)pendingTotalNode.textContent=Math.max(0,total-done);
+            document.getElementById('visit-meta-pct').textContent = pct + '%';
+            document.getElementById('visit-bar-fill').style.width = pct + '%';
+        }
+
+        function toggleAddVisitModal() {
+            const modal = document.getElementById('modal-add-visit');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function saveSingleVisit() {
+            const name = document.getElementById('modal-vis-name').value;
+            const dui = document.getElementById('modal-vis-dui').value;
+            const address = document.getElementById('modal-vis-address').value || 'San Salvador';
+            const result = document.getElementById('modal-vis-result').value;
+
+            AppState.visits.unshift({
+                id: Date.now(),
+                name,
+                dui,
+                address,
+                result,
+                done: false
+            });
+
+            saveAppState();
+            toggleAddVisitModal();
+            renderVisitsList();
+            document.getElementById('form-add-visit').reset();
+            showAppToast('Nuevo cliente añadido a la cartera de visitas');
+        }
+
+        function toggleBulkVisitsModal() {
+            const modal = document.getElementById('modal-bulk-visits');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function processBulkVisits(){const text=document.getElementById('bulk-visits-text').value,lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean),valid=[],rejected=[];lines.forEach((line,index)=>{let parts=line.split(/\t+|\s{2,}/).map(x=>x.trim()).filter(Boolean),name='',digits='',municipality='';if(parts.length>=3){name=parts[0];digits=parts[1].replace(/\D/g,'');municipality=parts.slice(2).join(' ');}else{const match=line.match(/^(.*?)\s+(\d{8}-?\d|\d{9})\s+(.+)$/);if(match){name=match[1].trim();digits=match[2].replace(/\D/g,'');municipality=match[3].trim();}}if(!name||digits.length!==9||!municipality){rejected.push(index+1);return;}valid.push({id:Date.now()+index,name,dui:digits.slice(0,8)+'-'+digits.slice(8),municipality,address:municipality,status:'Gestión en curso',result:'Pendiente de Gestión',done:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});});if(!valid.length){showAppToast('No se encontraron filas válidas. Use: Nombre  DUI  Municipio');return;}AppState.visits.push(...valid);saveAppState();toggleBulkVisitsModal();renderVisitsList();document.getElementById('bulk-visits-text').value='';showAppToast(`Se cargaron ${valid.length} clientes${rejected.length?` · Filas omitidas: ${rejected.join(', ')}`:''}`);}
+        function toggleVisitsSort() {
+            AppState.visitsSortAZ = !AppState.visitsSortAZ;
+            const btn = document.getElementById('btn-sort-visits');
+            btn.className = AppState.visitsSortAZ ? 
+                'touch-btn px-3 bg-brand-600 text-white border border-brand-500 rounded-xl text-xs font-bold' : 
+                'touch-btn px-3 bg-navy-950 border border-slate-700 rounded-xl text-xs font-semibold text-slate-300';
+            renderVisitsList();
+        }
+
+        // MÓDULO 5: HUB DE COMUNICACIONES WHATSAPP LOGIC
+        function generateWAMessage() {
+            const type = document.getElementById('wa-template-select').value;
+            const client = document.getElementById('wa-client-input').value || 'Estimado(a) Cliente';
+            const amount = document.getElementById('wa-amount-input').value || '0.00';
+            const dateStr = document.getElementById('wa-date-input').value || 'próximas horas';
+
+            let msg = '';
+            if (type === 'normalizacion') {
+                msg = `Estimado(a) *${client}*,\nLe saludamos cordialmente de la Gestión de Cobranzas. Le informamos que su cuenta registra un aviso formal por un saldo exigible de *$${amount}*.\n\nLe invitamos a formalizar su abono directo a capital antes del *${dateStr}* para regularizar su estatus crediticio.\n\nPor favor confirme su comprobante por esta vía.`;
+            } else if (type === 'refinanciamiento') {
+                msg = `Aviso Especial: *${client}*,\nTenemos el agrado de comunicarle que ha sido seleccionado para optar por un *Plan Flexible de Refinanciamiento* para su crédito pendiente de *$${amount}*.\n\nObtenga cuotas mensuales ajustadas a su capacidad actual. Confirme su interés antes del *${dateStr}* para congelar recargos.`;
+            } else if (type === 'prejuridica') {
+                msg = `NOTIFICACIÓN PRE-JURÍDICA\nTitular: *${client}*\nSaldo Exigible: *$${amount}*\n\nSe requiere la cancelación o arreglo inmediato antes del *${dateStr}* para detener el traslado del expediente a gestión legal externa.\n\nContáctenos de inmediato por este chat.`;
+            }
+
+            document.getElementById('wa-preview-text').innerText = msg;
+        }
+
+        function copyWAMessageText() {
+            const text = document.getElementById('wa-preview-text').innerText;
+            executeClipboardCopy(text);
+            showAppToast('Texto de WhatsApp copiado');
+        }
+
+        function openWASendModal(){const raw=document.getElementById('wa-phone-input').value.replace(/\D/g,'');const phone=raw.length===8?'503'+raw:raw;openUniversalWhatsApp({text:document.getElementById('wa-preview-text').innerText,phone});}
+
+        function closeWASendModal() {
+            const modal = document.getElementById('modal-wa-send');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function executeWASend(appTarget) {
+            const rawPhone = document.getElementById('wa-phone-input').value.replace(/\D/g, '');
+            const phone = rawPhone.length === 8 ? '503' + rawPhone : rawPhone;
+            const text = encodeURIComponent(document.getElementById('wa-preview-text').innerText);
+
+            let url = `https://wa.me/${phone}?text=${text}`;
+            if (appTarget === 'business') {
+                url = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
+            }
+
+            closeWASendModal();
+            window.open(url, '_blank');
+        }
+
+        // UTILERÍAS GLOBALES & SISTEMA DE TOAST
+        function showAppToast(msg) {
+            const toast = document.getElementById('app-toast');
+            document.getElementById('toast-message-text').textContent = msg;
+            toast.classList.remove('-translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+
+        function executeClipboardCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
+        function toggleProfileModal() {
+            const modal = document.getElementById('modal-profile');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function resetAppState() {
+            safeStorage.removeItem('MOBILE_COBRANZA_STATE');
+            AppState = DEFAULT_STATE;
+            saveAppState();
+            location.reload();
+        }
+
+        // INICIALIZACIÓN DE APLICACIÓN EN CARGA
+        document.addEventListener('DOMContentLoaded', () => {
+            if(window.lucide)window.lucide.createIcons();
+
+            // Set Date Text
+            const dateOpts = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            document.getElementById('top-date-display').textContent = new Date().toLocaleDateString('es-SV', dateOpts).toUpperCase();
+
+            // Set Default WA date (+3 days)
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 3);
+            document.getElementById('wa-date-input').value = targetDate.toISOString().split('T')[0];
+
+            // Initialize Module State
+            calculateDiscount();
+            loadDailyAvance();
+            calculateAvanceTotal();
+            generateWAMessage();
+            avanceIds.forEach(id=>document.getElementById(id)?.addEventListener('input',saveDailyAvance));
+
+            // Trigger window resize for canvas responsiveness
+            window.addEventListener('resize', () => {
+                renderDashboardChartCanvas();
+                renderAvancePNGCanvas();
+            });
+        });
+    </script>
+<script>
+(() => {
+'use strict';
+
+const KEY = 'MOBILE_COBRANZA_STATE';
+const PKEY = 'BANK_PROFILE_V4';
+const $ = id => document.getElementById(id);
+const num = value => Math.max(0, Number(value) || 0);
+const percent = (amount, base) => base > 0 ? amount / base * 100 : 0;
+const fixed2 = value => num(value).toFixed(2);
+const money = value => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(num(value));
+const POLICY_KEY='BANK_SCORING_POLICY_V1';
+const SEGMENT_DATA_KEY='BANK_SEGMENT_DATA_V1';
+function emptyOperationalState(){return {panelKPIs:{weekNumber:0,required:0,collection:0,partialPortfolio:0,passAmount:0,returnsAmount:0,prevReturns:0,totalPortfolio:0,selectedWeekNumbers:[],eficiencia:0,pase:0,regresos:0,recuperado:0},historyWeeks:[],visits:[],trash:{weeks:[],visits:[]}};}
+function readSegmentBuckets(){try{return JSON.parse(safeStorage.getItem(SEGMENT_DATA_KEY)||'{}')||{};}catch{return {};}}
+function saveCurrentSegmentBucket(segment){const buckets=readSegmentBuckets();buckets[segment]={panelKPIs:structuredClone(AppState.panelKPIs||emptyOperationalState().panelKPIs),historyWeeks:structuredClone(AppState.historyWeeks||[]),visits:structuredClone(AppState.visits||[]),trash:structuredClone(AppState.trash||{weeks:[],visits:[]})};safeStorage.setItem(SEGMENT_DATA_KEY,JSON.stringify(buckets));}
+function loadSegmentBucket(segment){const buckets=readSegmentBuckets(),data=buckets[segment]||emptyOperationalState();AppState.panelKPIs=structuredClone(data.panelKPIs);AppState.historyWeeks=structuredClone(data.historyWeeks);AppState.visits=structuredClone(data.visits);AppState.trash=structuredClone(data.trash||{weeks:[],visits:[]});saveAppState();}
+function syncPanelFormFromState(){const k=AppState.panelKPIs||{};[['input-week-number','weekNumber'],['input-required','required'],['input-collection','collection'],['input-partial-portfolio','partialPortfolio'],['input-pass-amount','passAmount'],['input-returns','returnsAmount'],['input-prev-returns','prevReturns'],['input-total-portfolio','totalPortfolio']].forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.value=k[key]??0;});}
+function deleteCurrentSegmentData(){if(!confirm(`¿Eliminar únicamente los datos guardados de ${profile.segment}? Esta acción no se puede deshacer.`))return;const buckets=readSegmentBuckets();delete buckets[profile.segment];safeStorage.setItem(SEGMENT_DATA_KEY,JSON.stringify(buckets));Object.assign(AppState,emptyOperationalState());saveAppState();renderSelector();renderPanel();if(window.renderVisitsList)window.renderVisitsList();showAppToast(`Datos de ${profile.segment} eliminados`);}
+window.deleteCurrentSegmentData=deleteCurrentSegmentData;
+const BASE_POLICY={version:'1.0',effectiveDate:getLocalDateKey(),efficiency:[[3.51,50],[3.01,40],[2.51,25],[2.01,10]],returns:[[13.01,30],[10.01,20],[8.01,15],[6.01,10]],pass:[[10,20],[12,15],[14,10]],commission:[[91,500],[81,450],[71,380],[61,320],[51,260],[41,200],[31,150],[21,100],[11,50]]};
+const SEGMENT_POLICIES={
+    'Mora 30':{...structuredClone(BASE_POLICY),version:'M30-1.0'},
+    'Mora 60':{...structuredClone(BASE_POLICY),version:'M60-1.0'},
+    'Mora 90':{
+        version:'M90-2026.1', effectiveDate:getLocalDateKey(),
+        // Tabla oficial Mora 61 a 90: Eficiencia 40 pts, Pase 40 pts y Cura 20 pts.
+        efficiency:[[12.51,40],[11.01,35],[9.51,30],[8.01,25],[6.51,15],[5.01,11],[0,0]],
+        pass:[[8,40],[9.5,30],[11,25],[12.5,20],[15,10]],
+        returns:[[7.01,20],[6.01,15],[5.01,5],[0,0]],
+        commission:[[91,500],[81,450],[71,380],[61,320],[51,260],[41,200],[31,150],[21,100],[11,50]],
+        passPenalty:[[13,0],[15,10],[17,20],[999999,30]]
+    },
+    'Mora 180':{...structuredClone(BASE_POLICY),version:'M180-1.0'}
+};
+function normalizePolicy(raw, fallback=BASE_POLICY){
+    const pairs=(name,order)=>{
+        if(!Array.isArray(raw?.[name]) || !raw[name].length) throw new Error(`La sección ${name} debe contener niveles.`);
+        const clean=raw[name].map(row=>{
+            if(!Array.isArray(row)||row.length!==2||!row.every(Number.isFinite)) throw new Error(`Nivel inválido en ${name}.`);
+            if(row[0]<0||row[1]<0) throw new Error(`No se permiten valores negativos en ${name}.`);
+            return [Number(row[0]),Number(row[1])];
+        });
+        clean.sort((a,b)=>order==='asc'?a[0]-b[0]:b[0]-a[0]);
+        return clean;
+    };
+    return {version:String(raw?.version||fallback.version),effectiveDate:raw?.effectiveDate||fallback.effectiveDate,
+        efficiency:pairs('efficiency','desc'),returns:pairs('returns','desc'),pass:pairs('pass','asc'),commission:pairs('commission','desc'),
+        passPenalty:Array.isArray(raw?.passPenalty) ? raw.passPenalty.map(row=>[Number(row[0]),Number(row[1])]).filter(row=>row.every(Number.isFinite)).sort((a,b)=>a[0]-b[0]) : []};
+}
+function policyKey(segment){return `${POLICY_KEY}_${String(segment).replace(/\s+/g,'_').toUpperCase()}`;}
+let profile = (() => {
+    try { return JSON.parse(safeStorage.getItem(PKEY)) || {name:'', code:'', segment:'Mora 30'}; }
+    catch { return {name:'', code:'', segment:'Mora 30'}; }
+})();
+let scoringPolicy=(()=>{const fallback=SEGMENT_POLICIES[profile.segment]||SEGMENT_POLICIES['Mora 180'];try{return normalizePolicy({...fallback,...JSON.parse(safeStorage.getItem(policyKey(profile.segment))||'{}')},fallback);}catch{return normalizePolicy(fallback,fallback);}})();
+function normalizeState() {
+    const defaults = {weekNumber:0, required:0, collection:0, partialPortfolio:0, passAmount:0,
+        returnsAmount:0, prevReturns:0, totalPortfolio:0, selectedWeekNumbers:[],
+        eficiencia:0, pase:0, regresos:0, recuperado:0};
+    AppState.panelKPIs = {...defaults, ...(AppState.panelKPIs || {})};
+    AppState.historyWeeks = Array.isArray(AppState.historyWeeks) ? AppState.historyWeeks : [];
+    // Discard only legacy demo rows that lack the monetary bases required for reliable recalculation.
+    AppState.historyWeeks = AppState.historyWeeks.filter(w =>
+        Number.isInteger(Number(w.weekNumber)) &&
+        ['required','collection','partialPortfolio','passAmount','returnsAmount','prevReturns','totalPortfolio']
+            .every(key => Number.isFinite(Number(w[key])))
+    );
+    const valid = new Set(AppState.historyWeeks.map(w => Number(w.weekNumber)));
+    AppState.panelKPIs.selectedWeekNumbers = [...new Set((AppState.panelKPIs.selectedWeekNumbers || [])
+        .map(Number).filter(id => valid.has(id)))].sort((a,b)=>a-b).slice(-4);
+    saveAppState();
+}
+
+function selectedWeeks() {
+    const ids = AppState.panelKPIs.selectedWeekNumbers || [];
+    return AppState.historyWeeks.filter(w => ids.includes(Number(w.weekNumber)))
+        .sort((a,b) => Number(a.weekNumber) - Number(b.weekNumber)).slice(-4);
+}
+
+function efficiencyAverage() {
+    const weeks = selectedWeeks();
+    const required = weeks.reduce((sum,w) => sum + num(w.required), 0);
+    const collection = weeks.reduce((sum,w) => sum + num(w.collection), 0);
+    return {weeks, required, collection, value: percent(collection, required)};
+}
+
+function indicators() {
+    const k = AppState.panelKPIs;
+    return {
+        weeklyEfficiency: percent(k.collection, k.required),
+        efficiency: efficiencyAverage().value,
+        pass: percent(k.passAmount, k.partialPortfolio),
+        returns: percent(num(k.returnsAmount) + num(k.prevReturns), k.totalPortfolio),
+        partialPortfolio: num(k.partialPortfolio)
+    };
+}
+
+function efficiencyPoints(value) { for(const [threshold,points] of scoringPolicy.efficiency) if(value>=threshold)return points; return 0; }
+function returnsPoints(value) { for(const [threshold,points] of scoringPolicy.returns) if(value>=threshold)return points; return 0; }
+function passPoints(value, partialPortfolio) { if(partialPortfolio<=0)return 0; for(const [maximum,points] of scoringPolicy.pass) if(value<=maximum)return points; return 0; }
+function commissionFromPoints(points) { for(const [minimum,amount] of scoringPolicy.commission) if(points>=minimum)return amount; return 0; }
+function policyMaximum(name){ return Math.max(0,...(scoringPolicy[name]||[]).map(row=>Number(row[1])||0)); }
+function passPenaltyPercent(value, partialPortfolio){
+    if(partialPortfolio<=0 || !Array.isArray(scoringPolicy.passPenalty)) return 0;
+    for(const [maximum,penalty] of scoringPolicy.passPenalty) if(value<=maximum) return penalty;
+    return 0;
+}
+function score(values = indicators()) {
+    const efficiency = efficiencyPoints(values.efficiency);
+    const returns = returnsPoints(values.returns);
+    const pass = passPoints(values.pass, values.partialPortfolio);
+    const grossTotal = efficiency + returns + pass;
+    const penaltyPercent = passPenaltyPercent(values.pass, values.partialPortfolio);
+    // La penalización del Pase no modifica el puntaje bruto. Se aplica al monto de comisión obtenido.
+    const grossCommission = commissionFromPoints(grossTotal);
+    const commissionPenalty = grossCommission * penaltyPercent / 100;
+    const commission = Math.max(0, grossCommission - commissionPenalty);
+    return {efficiency, returns, pass, grossTotal, penaltyPercent, total:grossTotal, grossCommission, commissionPenalty, commission};
+}
+function projection(points) {
+    if (points >= 91) return 'Excelente';
+    if (points >= 71) return 'Muy buena';
+    if (points >= 51) return 'Buena';
+    if (points >= 31) return 'En desarrollo';
+    return 'Baja';
+}
+
+function validateWeek(data) {
+    const errors = [];
+    if (!Number.isInteger(data.weekNumber) || data.weekNumber < 1) errors.push('Ingrese una semana válida.');
+    if (data.required <= 0) errors.push('El requerido debe ser mayor que cero.');
+    if (data.collection <= 0) errors.push('La cobranza debe ser mayor que cero.');
+    if (data.partialPortfolio <= 0) errors.push('La cartera parcial debe ser mayor que cero.');
+    if (data.totalPortfolio <= 0) errors.push('La cartera total debe ser mayor que cero.');
+    if (data.passAmount > data.partialPortfolio) errors.push('El pase no puede superar la cartera parcial.');
+    if (data.returnsAmount + data.prevReturns > data.totalPortfolio) errors.push('Los regresos no pueden superar la cartera total.');
+    return errors;
+}
+function readMainForm() {
+    return {weekNumber:Number.parseInt($('input-week-number').value,10), required:num($('input-required').value),
+        collection:num($('input-collection').value), partialPortfolio:num($('input-partial-portfolio').value),
+        passAmount:num($('input-pass-amount').value), returnsAmount:num($('input-returns').value),
+        prevReturns:num($('input-prev-returns').value), totalPortfolio:num($('input-total-portfolio').value)};
+}
+function syncCurrentWeek() {
+    const k = AppState.panelKPIs;
+    const current = AppState.historyWeeks.find(w => Number(w.weekNumber) === Number(k.weekNumber));
+    if (current) Object.assign(k, current);
+    const v = indicators();
+    k.eficiencia = v.efficiency; k.pase = v.pass; k.regresos = v.returns; k.recuperado = k.collection;
+    saveAppState();
+}
+
+function renderSelector() {
+    const box = $('efficiency-week-selector');
+    const selected = AppState.panelKPIs.selectedWeekNumbers || [];
+    const rows = [...AppState.historyWeeks].sort((a,b)=>a.weekNumber-b.weekNumber);
+    if (!rows.length) { box.innerHTML = '<span class="col-span-2 text-slate-500">Guarde una semana para iniciar.</span>'; return; }
+    box.innerHTML = rows.map(w => `<label class="flex items-center gap-2 bg-navy-900 rounded-lg p-2"><input type="checkbox" data-week="${w.weekNumber}" ${selected.includes(Number(w.weekNumber))?'checked':''}><span>Semana ${w.weekNumber}</span></label>`).join('');
+    box.querySelectorAll('input').forEach(input => input.onchange = () => {
+        const ids = [...box.querySelectorAll('input:checked')].map(e=>Number(e.dataset.week));
+        if (ids.length > 4) { input.checked=false; showAppToast('Seleccione máximo 4 semanas'); return; }
+        AppState.panelKPIs.selectedWeekNumbers = ids; syncCurrentWeek(); renderPanel();
+    });
+}
+
+function policyRangeText(levels, mode='minimum'){
+    if(!Array.isArray(levels)||!levels.length)return 'Sin política configurada';
+    if(mode==='maximum'){
+        const rows=[...levels].sort((a,b)=>a[0]-b[0]);
+        return rows.map(([max,pts],i)=>`${i===0?'0.00':fixed2(rows[i-1][0]+0.01)}% a ${fixed2(max)}%: ${pts} pts`).join(' · ');
+    }
+    const rows=[...levels].sort((a,b)=>a[0]-b[0]);
+    return rows.map(([min,pts],i)=>`${fixed2(min)}%${i<rows.length-1?' a '+fixed2(rows[i+1][0]-0.01)+'%':' en adelante'}: ${pts} pts`).join(' · ');
+}
+function applySegmentIndicatorUI(){
+    const is90=profile.segment==='Mora 90';
+    const effMax=policyMaximum('efficiency'),passMax=policyMaximum('pass'),returnMax=policyMaximum('returns');
+    const effLevels=[...scoringPolicy.efficiency].sort((a,b)=>a[0]-b[0]);
+    const passLevels=[...scoringPolicy.pass].sort((a,b)=>a[0]-b[0]);
+    const returnLevels=[...scoringPolicy.returns].sort((a,b)=>a[0]-b[0]);
+    const effTop=Math.max(...effLevels.map(x=>x[0])),effBase=effLevels.find(x=>x[1]>0)?.[0]||0;
+    const passOptimal=passLevels[0]?.[0]||0,passLimit=passLevels.at(-1)?.[0]||0;
+    const returnTop=Math.max(...returnLevels.map(x=>x[0])),returnBase=returnLevels.find(x=>x[1]>0)?.[0]||0;
+    const cards=document.querySelectorAll('.indicator-grid .indicator-card');
+    const titles=document.querySelectorAll('.indicator-grid .indicator-title');
+    if(titles[0])titles[0].textContent=`Eficiencia Neta ${profile.segment.replace('Mora ','M')}`;
+    if(titles[1])titles[1].textContent=is90?'Pase 90':'Pase 120 Días';
+    if(titles[2])titles[2].textContent=is90?'Cura':'% Regresos';
+    const chips=document.querySelectorAll('.indicator-grid .pond-chip');
+    if(chips[0])chips[0].textContent=`${effMax}% Pond`;
+    if(chips[1])chips[1].textContent=`${passMax}% Pond`;
+    if(chips[2])chips[2].textContent=`${returnMax}% Pond`;
+    if(cards[0]){
+        const p=cards[0].querySelector('.indicator-copy');
+        const target=cards[0].querySelector('.indicator-target');
+        const foot=cards[0].querySelector('.indicator-foot span:first-child');
+        if(p)p.textContent=policyRangeText(scoringPolicy.efficiency,'minimum');
+        if(target)target.textContent=` / ${fixed2(effTop)}% para ${effMax} pts`;
+        if(foot)foot.innerHTML=`Base: <b>${fixed2(effBase)}% (${efficiencyPoints(effBase)} pts)</b>`;
+    }
+    if(cards[1]){
+        const p=cards[1].querySelector('.indicator-copy');
+        const target=cards[1].querySelector('.indicator-target');
+        const foot=cards[1].querySelector('.indicator-foot span:first-child');
+        if(p)p.textContent=policyRangeText(scoringPolicy.pass,'maximum')+(scoringPolicy.passPenalty?.length?' · La penalización se descuenta de la comisión, no del puntaje.':'');
+        if(target)target.textContent=` / Óptimo ≤ ${fixed2(passOptimal)}% para ${passMax} pts`;
+        if(foot)foot.innerHTML=`Límite con puntaje: <b>≤ ${fixed2(passLimit)}%</b>`;
+    }
+    if(cards[2]){
+        const p=cards[2].querySelector('.indicator-copy');
+        const target=cards[2].querySelector('.indicator-target');
+        const foot=cards[2].querySelector('.indicator-foot span:first-child');
+        if(p)p.textContent=policyRangeText(scoringPolicy.returns,'minimum');
+        if(target)target.textContent=` / ${fixed2(returnTop)}% para ${returnMax} pts`;
+        if(foot)foot.innerHTML=`Umbral: <b>${fixed2(returnBase)}% (${returnsPoints(returnBase)} pts)</b>`;
+    }
+    const effRange=$('metric-eff-range'),passRange=$('metric-pass-range'),retRange=$('metric-return-range');
+    if(effRange){effRange.min=effBase;effRange.max=effTop;effRange.value=Math.min(effTop,Math.max(effBase,Number(effRange.value)||effBase));}
+    if(passRange){passRange.min=passOptimal;passRange.max=passLimit;passRange.value=Math.min(passLimit,Math.max(passOptimal,Number(passRange.value)||passOptimal));}
+    if(retRange){retRange.min=returnBase;retRange.max=returnTop;retRange.value=Math.min(returnTop,Math.max(returnBase,Number(retRange.value)||returnBase));}
+    const returnsHeading=document.querySelector('#form-panel-kpis section:nth-of-type(3) h4');
+    const returnLabels=document.querySelectorAll('#form-panel-kpis section:nth-of-type(3) label');
+    const returnFormula=document.querySelector('#form-panel-kpis section:nth-of-type(3) p');
+    if(returnsHeading)returnsHeading.textContent=is90?'CURA':'REGRESOS';
+    if(returnLabels[0])returnLabels[0].childNodes[0].textContent=is90?'Cura ($)':'Regresos ($)';
+    if(returnLabels[1])returnLabels[1].childNodes[0].textContent=is90?'Cura Seg. Ant. ($)':'Regresos Seg. Ant. ($)';
+    if(returnFormula)returnFormula.textContent=is90?'% Cura = (Cura + Cura segmento anterior) ÷ Cartera Total':'% Regresos = (Regresos + Regresos segmento anterior) ÷ Cartera Total';
+}
+function nextHigherThreshold(levels,current){return [...new Set((levels||[]).map(x=>Number(x[0])).filter(Number.isFinite))].sort((a,b)=>a-b).find(x=>x>current+0.000001)??null;}function nextLowerMaximum(levels,current){const x=[...new Set((levels||[]).map(r=>Number(r[0])).filter(Number.isFinite))].sort((a,b)=>b-a).filter(x=>x<current-0.000001);return x.length?x[0]:null;}function simulationEfficiencyBase(){const avg=efficiencyAverage(),k=AppState.panelKPIs,active=Number(k.weekNumber),selected=avg.weeks.some(w=>Number(w.weekNumber)===active);return selected?{required:avg.required,collection:avg.collection}:{required:avg.required+num(k.required),collection:avg.collection+num(k.collection)};}
+function nextIndicatorObjectives(values=indicators()){const avg=simulationEfficiencyBase(),k=AppState.panelKPIs,effCurrent=percent(avg.collection,avg.required),effTarget=nextHigherThreshold(scoringPolicy.efficiency,effCurrent),returnTarget=nextHigherThreshold(scoringPolicy.returns,values.returns),passTarget=nextLowerMaximum(scoringPolicy.pass,values.pass);return{effTarget,returnTarget,passTarget,effAmount:effTarget===null?0:Math.max(0,avg.required*effTarget/100-avg.collection),returnAmount:returnTarget===null?0:Math.max(0,num(k.totalPortfolio)*returnTarget/100-(num(k.returnsAmount)+num(k.prevReturns))),passAmount:passTarget===null?0:Math.max(0,num(k.passAmount)-num(k.partialPortfolio)*passTarget/100)};}
+function nextObjectiveText(type,v){const n=nextIndicatorObjectives(v);if(type==='efficiency')return n.effTarget===null?'Puntaje máximo alcanzado':`Faltan ${money(n.effAmount)} para llegar a ${fixed2(n.effTarget)}% y subir al siguiente puntaje`;if(type==='returns')return n.returnTarget===null?'Puntaje máximo alcanzado':`Faltan ${money(n.returnAmount)} para llegar a ${fixed2(n.returnTarget)}% y subir al siguiente puntaje`;if(v.partialPortfolio<=0)return'Ingrese Cartera Parcial y Pase';return n.passTarget===null?'Puntaje máximo alcanzado':`Debe contener ${money(n.passAmount)} para bajar a ${fixed2(n.passTarget)}% y subir al siguiente puntaje`;}
+function renderPanel() {
+    applySegmentIndicatorUI();
+    const v = indicators(), result = score(v), avg = efficiencyAverage();
+    if ($('efficiency-segment-title')) $('efficiency-segment-title').textContent = `Eficiencia Neta ${profile.segment.replace('Mora ','M')}`;
+    $('calc-efficiency-current').textContent = fixed2(v.weeklyEfficiency) + '%';
+    $('calc-efficiency-4w').textContent = fixed2(v.efficiency) + '%';
+    $('calc-pass').textContent = fixed2(v.pass) + '%';
+    $('calc-returns').textContent = fixed2(v.returns) + '%';
+    $('kpi-eficiencia-val').textContent = fixed2(v.efficiency) + '%';
+    $('kpi-pase-val').textContent = fixed2(v.pass) + '%';
+    $('kpi-regresos-val').textContent = fixed2(v.returns) + '%';
+    $('kpi-comision-val').textContent = money(result.commission);
+    $('kpi-eficiencia-status').textContent = `${result.efficiency}/${policyMaximum('efficiency')} pts`;
+    $('kpi-pase-status').textContent = `${result.pass}/${policyMaximum('pass')} pts`;
+    $('kpi-regresos-status').textContent = `${result.returns}/${policyMaximum('returns')} pts`;
+    $('kpi-gap-percent').textContent = `${result.total}/100 puntos`;
+    $('kpi-gap-bar').style.width = result.total + '%';
+    $('kpi-recuperado-val').textContent = `${result.total}/100`;
+    const gaps=[];
+    if (result.efficiency < policyMaximum('efficiency')) gaps.push(`Eficiencia ${result.efficiency}/${policyMaximum('efficiency')}`);
+    if (result.returns < policyMaximum('returns')) gaps.push(`${profile.segment==='Mora 90'?'Cura':'Regresos'} ${result.returns}/${policyMaximum('returns')}`);
+    if (result.pass < policyMaximum('pass')) gaps.push(`Pase ${result.pass}/${policyMaximum('pass')}`);if(result.penaltyPercent)gaps.push(`Comisión penalizada ${result.penaltyPercent}% (-${money(result.commissionPenalty)})`);
+    $('kpi-gap-amount').textContent = gaps.length ? gaps.join(' · ') : 'Sin brechas';
+    const projectionNode = $('commission-projection');
+    if (projectionNode) projectionNode.textContent = result.penaltyPercent
+        ? `${projection(result.total)} · ${money(result.grossCommission)} - ${result.penaltyPercent}% = ${money(result.commission)}`
+        : projection(result.total);
+    const setText=(id,text)=>{const el=$(id);if(el)el.textContent=text;};
+    const setWidth=(id,value)=>{const el=$(id);if(el)el.style.width=Math.max(0,Math.min(100,value))+'%';};
+    const setRange=(id,value)=>{const el=$(id);if(el)el.value=value;};
+    setText('metric-eff-points', `${result.efficiency} pts obtenidos`);
+    setText('metric-pass-points', `${result.pass} pts obtenidos`);
+    setText('metric-return-points', `${result.returns} pts obtenidos`);
+    const effTop=Math.max(...scoringPolicy.efficiency.map(x=>x[0])),passBest=Math.min(...scoringPolicy.pass.map(x=>x[0])),passWorst=Math.max(...scoringPolicy.pass.map(x=>x[0])),retTop=Math.max(...scoringPolicy.returns.map(x=>x[0])); setWidth('metric-eff-bar',effTop?(v.efficiency/effTop)*100:0); setWidth('metric-pass-bar',v.partialPortfolio>0?(v.pass<=passBest?100:v.pass>passWorst?0:((passWorst-v.pass)/(passWorst-passBest))*100):0); setWidth('metric-return-bar',retTop?(v.returns/retTop)*100:0);
+    setText('metric-eff-gap',nextObjectiveText('efficiency',v));
+    setText('metric-pass-gap',nextObjectiveText('pass',v));
+    setText('metric-return-gap',nextObjectiveText('returns',v));
+    
+    
+    const effStatus=$('kpi-eficiencia-status'),passStatus=$('kpi-pase-status'),retStatus=$('kpi-regresos-status');
+    if(effStatus){effStatus.textContent=result.efficiency>0?`En Meta (${result.efficiency} pts)`:'Bajo Meta';effStatus.className='status-pill '+(result.efficiency>0?'status-good':'status-warn');}
+    if(passStatus){passStatus.textContent=v.partialPortfolio<=0?'Sin datos':result.pass===policyMaximum('pass')?`Contenido (${fixed2(v.pass)}%)`:`En Riesgo (${fixed2(v.pass)}%)`;passStatus.className='status-pill '+(v.partialPortfolio>0&&result.pass===policyMaximum('pass')?'status-good':'status-warn');}
+    if(retStatus){retStatus.textContent=result.returns>0?`En Meta (${result.returns} pts)`:'Oportunidad';retStatus.className='status-pill '+(result.returns>0?'status-good':'status-warn');}
+    updateGoalSimulations();
+    $('history-average-label').textContent = avg.weeks.length ? `Promedio ${avg.weeks.length} semana(s): ${fixed2(avg.value)}%` : 'Sin semanas seleccionadas';
+    renderHistoryList(); renderDashboardChartCanvas();
+}
+
+function updateGoalSimulations(){const v=indicators(),k=AppState.panelKPIs,eff=Number($('metric-eff-range')?.value||2.51),pass=Number($('metric-pass-range')?.value||10),ret=Number($('metric-return-range')?.value||6.01);if($('metric-eff-range-val'))$('metric-eff-range-val').textContent=fixed2(eff)+'%';if($('metric-pass-range-val'))$('metric-pass-range-val').textContent=fixed2(pass)+'%';if($('metric-return-range-val'))$('metric-return-range-val').textContent=fixed2(ret)+'%';const base=simulationEfficiencyBase(),effNeed=Math.max(0,base.required*eff/100-base.collection),passNeed=Math.max(0,k.passAmount-k.partialPortfolio*pass/100),retNeed=Math.max(0,k.totalPortfolio*ret/100-(num(k.returnsAmount)+num(k.prevReturns))),o=nextIndicatorObjectives(v),same=(a,b)=>a!==null&&Math.abs(Number(a)-Number(b))<.000001;if($('metric-eff-sim-result'))$('metric-eff-sim-result').textContent=base.required>0?(same(eff,o.effTarget)?'El simulador coincide con el siguiente nivel':effNeed?`Para la meta simulada: ${money(effNeed)} de cobranza adicional, incluyendo la semana actual`:'Meta simulada cubierta, incluyendo la semana actual'):'Ingrese Requerido y Cobranza';if($('metric-pass-sim-result'))$('metric-pass-sim-result').textContent=k.partialPortfolio>0?(same(pass,o.passTarget)?'El simulador coincide con el siguiente nivel':passNeed?`Para la meta simulada: contener ${money(passNeed)} de pase`:'Meta simulada cubierta'):'Ingrese Cartera Parcial y Pase';if($('metric-return-sim-result'))$('metric-return-sim-result').textContent=k.totalPortfolio>0?(same(ret,o.returnTarget)?'El simulador coincide con el siguiente nivel':retNeed?`Para la meta simulada: ${money(retNeed)} en saldo capital`:'Meta simulada cubierta'):'Ingrese Cartera Total y Regresos';}
+window.updatePanelKPIs = () => {
+    const data = readMainForm(), errors = validateWeek(data);
+    if (errors.length) { showAppToast(errors[0]); return; }
+    const duplicate = AppState.historyWeeks.findIndex(w => Number(w.weekNumber) === data.weekNumber);
+    const row = {...data, week:'Semana '+data.weekNumber};
+    if (duplicate >= 0) AppState.historyWeeks[duplicate] = row; else AppState.historyWeeks.push(row);
+    AppState.historyWeeks.sort((a,b)=>a.weekNumber-b.weekNumber);
+    Object.assign(AppState.panelKPIs, data);
+    let ids = AppState.panelKPIs.selectedWeekNumbers || [];
+    if (!ids.includes(data.weekNumber)) ids.push(data.weekNumber);
+    AppState.panelKPIs.selectedWeekNumbers = ids.sort((a,b)=>a-b).slice(-4);
+    syncCurrentWeek(); renderSelector(); renderPanel();
+    showAppToast(duplicate >= 0 ? `Semana ${data.weekNumber} actualizada` : `Semana ${data.weekNumber} guardada`);
+};
+
+window.renderHistoryList = () => {
+    const box=$('history-list'), rows=[...AppState.historyWeeks].sort((a,b)=>a.weekNumber-b.weekNumber);
+    if (!rows.length) { box.innerHTML='<div class="p-5 text-center text-xs text-slate-400">Sin semanas registradas.</div>'; return; }
+    box.innerHTML=rows.map(w=>{
+        const v={efficiency:percent(w.collection,w.required), returns:percent(num(w.returnsAmount)+num(w.prevReturns),w.totalPortfolio), pass:percent(w.passAmount,w.partialPortfolio), partialPortfolio:num(w.partialPortfolio)};
+        const r=score(v);
+        return `<div class="p-3 flex justify-between gap-2"><div><strong class="text-white">Semana ${w.weekNumber}</strong><p class="text-[10px] text-slate-400">Req. ${money(w.required)} · Cob. ${money(w.collection)} · Ef. ${fixed2(v.efficiency)}%</p><p class="text-[10px] text-slate-400">Pase ${fixed2(v.pass)}% · Regresos ${fixed2(v.returns)}% · ${r.total} pts · ${money(r.commission)}${r.penaltyPercent?` (comisión -${r.penaltyPercent}%)`:''}</p></div><div class="flex flex-col gap-2 shrink-0"><button type="button" data-action="edit-week" data-week-number="${w.weekNumber}" class="js-edit-week touch-btn min-h-[34px] px-3 rounded-lg bg-brand-600 text-white text-[10px] font-bold">Editar</button><button type="button" onclick="window.deleteHistoryWeek(${w.weekNumber})" class="touch-btn min-h-[34px] px-3 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 text-[10px] font-bold">Eliminar</button></div></div>`;
+    }).join('');
+};
+
+window.deleteHistoryWeek = weekNumber => {
+    const number = Number(weekNumber);
+    const row = AppState.historyWeeks.find(w => Number(w.weekNumber) === number);
+    if (!row) {
+        showAppToast('La semana seleccionada ya no existe');
+        return;
+    }
+    if (!confirm(`¿Eliminar definitivamente la Semana ${number}? Esta acción no se puede deshacer.`)) return;
+
+    AppState.historyWeeks = AppState.historyWeeks.filter(w => Number(w.weekNumber) !== number);
+    AppState.panelKPIs.selectedWeekNumbers = (AppState.panelKPIs.selectedWeekNumbers || [])
+        .map(Number)
+        .filter(id => id !== number);
+
+    const remaining = [...AppState.historyWeeks].sort((a, b) => Number(a.weekNumber) - Number(b.weekNumber));
+    const activeWasDeleted = Number(AppState.panelKPIs.weekNumber) === number;
+
+    if (activeWasDeleted) {
+        const latest = remaining.at(-1);
+        const empty = {
+            weekNumber: 0, required: 0, collection: 0, partialPortfolio: 0,
+            passAmount: 0, returnsAmount: 0, prevReturns: 0, totalPortfolio: 0,
+            eficiencia: 0, pase: 0, regresos: 0, recuperado: 0
+        };
+        Object.assign(AppState.panelKPIs, latest || empty);
+    }
+
+    saveAppState();
+
+    const k = AppState.panelKPIs;
+    [
+        ['input-week-number', 'weekNumber'], ['input-required', 'required'],
+        ['input-collection', 'collection'], ['input-partial-portfolio', 'partialPortfolio'],
+        ['input-pass-amount', 'passAmount'], ['input-returns', 'returnsAmount'],
+        ['input-prev-returns', 'prevReturns'], ['input-total-portfolio', 'totalPortfolio']
+    ].forEach(([id, key]) => {
+        const element = $(id);
+        if (element) element.value = k[key] || 0;
+    });
+
+    syncCurrentWeek();
+    renderSelector();
+    renderPanel();
+    showAppToast(`Semana ${number} eliminada correctamente`);
+};
+
+window.renderDashboardChartCanvas = () => {
+    const canvas=$('canvasDashboardChart'); if(!canvas) return;
+    const rect=canvas.getBoundingClientRect(), dpr=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=Math.max(1,rect.width*dpr); canvas.height=Math.max(1,rect.height*dpr);
+    const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=rect.width,h=rect.height,v=indicators(),r=score(v);
+    ctx.clearRect(0,0,w,h);
+    const items=[{label:'Eficiencia',points:r.efficiency,max:policyMaximum('efficiency'),color:'#00adb5'}, {label:profile.segment==='Mora 90'?'Cura':'Regresos',points:r.returns,max:policyMaximum('returns'),color:'#f59e0b'}, {label:profile.segment==='Mora 90'?'Pase 90':'Pase 120',points:r.pass,max:policyMaximum('pass'),color:'#2563eb'}];
+    const gap=w/items.length, bar=Math.min(54,gap*.45), top=24, bottom=30, usable=h-top-bottom;
+    items.forEach((item,i)=>{const x=gap*i+(gap-bar)/2, bh=usable*(item.points/item.max);ctx.fillStyle='#132238';ctx.fillRect(x,top,bar,usable);ctx.fillStyle=item.color;ctx.fillRect(x,top+usable-bh,bar,bh);ctx.fillStyle='#fff';ctx.font='bold 11px JetBrains Mono';ctx.textAlign='center';ctx.fillText(`${item.points}/${item.max}`,x+bar/2,Math.max(14,top+usable-bh-5));ctx.fillStyle='#94a3b8';ctx.font='10px JetBrains Mono';ctx.fillText(item.label,x+bar/2,h-10);});
+    ctx.textAlign='left';
+};
+
+function setWeekEditorVisible(open) {
+    const editor = $('modal-week-editor');
+    if (!editor) {
+        showAppToast('Error: no se encontró el editor de semanas');
+        return false;
+    }
+    editor.classList.toggle('hidden', !open);
+    editor.classList.toggle('flex', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+    return true;
+}
+
+window.openWeekEditor = function(weekNumber) {
+    const isNew = weekNumber === undefined || weekNumber === null || weekNumber === '';
+    let row;
+
+    if (isNew) {
+        const numbers = AppState.historyWeeks.map(w => Number(w.weekNumber)).filter(Number.isFinite);
+        row = {
+            weekNumber: numbers.length ? Math.max(...numbers) + 1 : 1,
+            required: 0,
+            collection: 0,
+            partialPortfolio: 0,
+            passAmount: 0,
+            returnsAmount: 0,
+            prevReturns: 0,
+            totalPortfolio: 0
+        };
+    } else {
+        const requested = Number(weekNumber);
+        row = AppState.historyWeeks.find(w => Number(w.weekNumber) === requested);
+        if (!row) {
+            showAppToast(`No se encontró la Semana ${requested}`);
+            return;
+        }
+    }
+
+    $('week-editor-title').textContent = isNew ? 'Agregar semana' : `Editar Semana ${row.weekNumber}`;
+    $('edit-week-original').value = isNew ? '' : String(row.weekNumber);
+    $('edit-week-number').value = row.weekNumber;
+    $('edit-required').value = row.required ?? 0;
+    $('edit-collection').value = row.collection ?? 0;
+    $('edit-partial-portfolio').value = row.partialPortfolio ?? 0;
+    $('edit-pass-amount').value = row.passAmount ?? 0;
+    $('edit-returns').value = row.returnsAmount ?? 0;
+    $('edit-prev-returns').value = row.prevReturns ?? 0;
+    $('edit-total-portfolio').value = row.totalPortfolio ?? 0;
+
+    updateWeekEfficiencyPreview();
+    if (setWeekEditorVisible(true)) {
+        setTimeout(() => $('edit-week-number')?.focus(), 50);
+    }
+};
+
+window.closeWeekEditor = function() {
+    setWeekEditorVisible(false);
+};
+
+function updateWeekEfficiencyPreview() {
+    const required = num($('edit-required')?.value);
+    const collection = num($('edit-collection')?.value);
+    const value = required > 0 ? collection / required * 100 : 0;
+    if ($('edit-efficiency-preview')) {
+        $('edit-efficiency-preview').textContent = fixed2(value) + '%';
+    }
+}
+
+function saveWeekEditor(event) {
+    event.preventDefault();
+
+    const originalText = $('edit-week-original').value;
+    const original = originalText === '' ? null : Number(originalText);
+    const row = {
+        weekNumber: Number.parseInt($('edit-week-number').value, 10),
+        required: num($('edit-required').value),
+        collection: num($('edit-collection').value),
+        partialPortfolio: num($('edit-partial-portfolio').value),
+        passAmount: num($('edit-pass-amount').value),
+        returnsAmount: num($('edit-returns').value),
+        prevReturns: num($('edit-prev-returns').value),
+        totalPortfolio: num($('edit-total-portfolio').value)
+    };
+
+    const errors = validateWeek(row);
+    if (errors.length) {
+        showAppToast(errors[0]);
+        return;
+    }
+    if (row.collection <= 0) {
+        showAppToast('La cobranza debe ser mayor que cero');
+        return;
+    }
+
+    const duplicate = AppState.historyWeeks.some(w =>
+        Number(w.weekNumber) === row.weekNumber && Number(w.weekNumber) !== original
+    );
+    if (duplicate) {
+        showAppToast(`La Semana ${row.weekNumber} ya existe`);
+        return;
+    }
+
+    row.week = `Semana ${row.weekNumber}`;
+    if (original === null) {
+        AppState.historyWeeks.push(row);
+    } else {
+        const index = AppState.historyWeeks.findIndex(w => Number(w.weekNumber) === original);
+        if (index < 0) {
+            showAppToast('No se encontró la semana que intenta editar');
+            return;
+        }
+        AppState.historyWeeks[index] = row;
+    }
+
+    AppState.historyWeeks.sort((a,b) => Number(a.weekNumber) - Number(b.weekNumber));
+    let selected = (AppState.panelKPIs.selectedWeekNumbers || []).map(Number);
+    if (original !== null) selected = selected.map(id => id === original ? row.weekNumber : id);
+    if (!selected.includes(row.weekNumber)) selected.push(row.weekNumber);
+    AppState.panelKPIs.selectedWeekNumbers = [...new Set(selected)].sort((a,b)=>a-b).slice(-4);
+    Object.assign(AppState.panelKPIs, row);
+
+    saveAppState();
+    setWeekEditorVisible(false);
+    renderSelector();
+    renderPanel();
+    showAppToast(original === null ? `Semana ${row.weekNumber} agregada` : `Semana ${row.weekNumber} actualizada correctamente`);
+}
+
+async function reportCanvas(){if(document.fonts?.ready)await document.fonts.ready;const rows=[...AppState.historyWeeks].sort((a,b)=>a.weekNumber-b.weekNumber),v=indicators(),r=score(v),avg=efficiencyAverage(),canvas=$('canvasBankReport'),W=1240,H=Math.max(1754,1130+rows.length*125);canvas.width=W;canvas.height=H;const x=canvas.getContext('2d'),gradient=x.createLinearGradient(0,0,0,H);gradient.addColorStop(0,'#081525');gradient.addColorStop(1,'#10253d');x.fillStyle=gradient;x.fillRect(0,0,W,H);x.fillStyle='#00adb5';x.fillRect(60,55,8,145);x.fillStyle='white';x.font='800 42px JetBrains Mono';x.fillText('INFORME EJECUTIVO DE CARTERA',95,105);x.fillStyle='#91a4ba';x.font='500 21px JetBrains Mono';x.fillText(`Gestor ${profile.code||'000000'} | ${profile.segment} | ${new Date().toLocaleString('es-SV')}`,95,150);x.fillText(`Responsable: ${profile.name||'Sin nombre'} | Semana activa: ${AppState.panelKPIs.weekNumber||0}`,95,185);const k=AppState.panelKPIs,data=[['Requerido',money(k.required)],['Cobranza',money(k.collection)],['Eficiencia semana',fixed2(v.weeklyEfficiency)+'%'],['Eficiencia hasta 4 semanas',fixed2(v.efficiency)+`% | ${r.efficiency}/50 pts`],['Semanas seleccionadas',avg.weeks.map(w=>w.weekNumber).join(', ')||'Ninguna'],['Pase',fixed2(v.pass)+`% | ${r.pass}/20 pts`],['Regresos',fixed2(v.returns)+`% | ${r.returns}/30 pts`],['Puntaje total',r.total+'/100'],['Comisión bruta',money(r.grossCommission)],['Penalización de comisión',r.penaltyPercent?`${r.penaltyPercent}% (-${money(r.commissionPenalty)})`:'0%'],['Comisión final',money(r.commission)],['Proyección',projection(r.total)]];let y=245;x.fillStyle='white';x.font='700 27px JetBrains Mono';x.fillText('RESUMEN Y BASES DE CÁLCULO',60,y);y+=35;data.forEach((row,i)=>{x.fillStyle=i%2?'#10243a':'#0d1e31';x.fillRect(60,y,1120,45);x.fillStyle='#91a4ba';x.font='500 18px JetBrains Mono';x.fillText(row[0],80,y+29);x.fillStyle='white';x.font='700 18px JetBrains Mono';x.textAlign='right';x.fillText(String(row[1]),1160,y+29);x.textAlign='left';y+=47;});y+=40;x.fillStyle='white';x.font='700 27px JetBrains Mono';x.fillText('HISTORIAL SEMANAL',60,y);y+=35;rows.forEach((w,i)=>{const iv={efficiency:percent(w.collection,w.required),returns:percent(num(w.returnsAmount)+num(w.prevReturns),w.totalPortfolio),pass:percent(w.passAmount,w.partialPortfolio),partialPortfolio:num(w.partialPortfolio)},sr=score(iv);x.fillStyle=i%2?'#10243a':'#0d1e31';x.fillRect(60,y,1120,105);x.fillStyle='white';x.font='700 21px JetBrains Mono';x.fillText('SEMANA '+w.weekNumber,80,y+27);x.fillStyle='#91a4ba';x.font='500 17px JetBrains Mono';x.fillText(`Req. ${money(w.required)} | Cob. ${money(w.collection)} | Ef. ${fixed2(iv.efficiency)}% (${sr.efficiency}/50)`,80,y+54);x.fillText(`Pase ${fixed2(iv.pass)}% (${sr.pass}/20) | Regresos ${fixed2(iv.returns)}% (${sr.returns}/30)`,80,y+78);x.fillText(`Total ${sr.total}/100 | Comisión ${money(sr.commission)}${sr.penaltyPercent?` (bruta ${money(sr.grossCommission)}, penalización ${sr.penaltyPercent}%)`:''}`,80,y+100);y+=125;});return canvas;}
+window.downloadReportImage=async()=>{const c=await reportCanvas(),a=document.createElement('a');a.download='Informe_Panel_Semanal.png';a.href=c.toDataURL('image/png');a.click();};
+function pdfT(v){return String(v??'').replace(/[\r\n]+/g,' ')}function pdfA(){try{return JSON.parse(safeStorage.getItem('GESTOR_VISITS_ARCHIVED_V1')||'[]')}catch{return[]}}function pHead(p,t,sub){p.setFillColor(8,19,33);p.rect(0,0,210,35,'F');p.setFillColor(0,173,181);p.rect(0,0,5,35,'F');p.setTextColor(255,255,255);p.setFont('helvetica','bold');p.setFontSize(16);p.text(t,13,14);p.setTextColor(226,232,240);p.setFontSize(8);p.text(sub,13,22);p.setTextColor(0,173,181);p.text('GESTIÓN INTEGRADA DE COBRANZAS',13,29)}function pSec(p,y,t){if(y>275){p.addPage();pHead(p,'INFORME EJECUTIVO','Continuación');y=42}p.setFillColor(15,31,52);p.rect(10,y,190,10,'F');p.setTextColor(255,255,255);p.setFontSize(10);p.text(t,14,y+7);return y+14}function pTab(p,y,c,r){const total=c.reduce((a,x)=>a+x.w,0),sc=190/total,rh=11,hh=10;const h=()=>{let x=10;p.setFillColor(30,64,175);p.setTextColor(255,255,255);c.forEach(z=>{let w=z.w*sc;p.rect(x,y,w,hh,'F');p.text(z.l,x+1,y+7,{maxWidth:w-2});x+=w});y+=hh};h();r.forEach((o,i)=>{if(y+rh>282){p.addPage();pHead(p,'INFORME EJECUTIVO','Continuación');y=42;h()}let x=10;p.setFillColor(i%2?241:255,i%2?245:255,i%2?249:255);p.setDrawColor(148,163,184);c.forEach(z=>{let w=z.w*sc;p.rect(x,y,w,rh,'FD');p.setTextColor(15,23,42);p.setFontSize(7.3);p.text(pdfT(o[z.k]),x+1,y+7,{maxWidth:w-2});x+=w});y+=rh});return y+4}window.downloadReportPDF=async()=>{if(!window.jspdf)return showAppToast('No se cargó jsPDF');const{jsPDF}=window.jspdf,p=new jsPDF({unit:'mm',format:'a4'}),v=indicators(),r=score(v),k=AppState.panelKPIs;pHead(p,'INFORME EJECUTIVO DE GESTIÓN',`${profile.name||'Gestor'} · ${profile.segment} · ${new Date().toLocaleString('es-SV')}`);let y=42;y=pSec(p,y,'1. INFORMACIÓN GENERAL');y=pTab(p,y,[{k:'a',l:'Campo',w:35},{k:'b',l:'Información',w:65}],[{a:'Gestor',b:profile.name},{a:'Código',b:profile.code},{a:'Segmento',b:profile.segment},{a:'Semana',b:k.weekNumber||0},{a:'Política',b:scoringPolicy.version}]);y=pSec(p,y,'2. INDICADORES');y=pTab(p,y,[{k:'a',l:'Indicador',w:40},{k:'b',l:'Resultado',w:30},{k:'c',l:'Puntaje',w:30}],[{a:'Requerido',b:money(k.required),c:''},{a:'Cobranza',b:money(k.collection),c:''},{a:'Eficiencia',b:fixed2(v.efficiency)+'%',c:r.efficiency},{a:'Pase',b:fixed2(v.pass)+'%',c:r.pass},{a:profile.segment==='Mora 90'?'Cura':'Regresos',b:fixed2(v.returns)+'%',c:r.returns},{a:'Comisión',b:money(r.commission),c:r.total}]);y=pSec(p,y,'3. HISTORIAL SEMANAL');y=pTab(p,y,[{k:'w',l:'Semana',w:12},{k:'r',l:'Requerido',w:22},{k:'c',l:'Cobranza',w:22},{k:'e',l:'Efic.',w:15},{k:'p',l:'Pase',w:14},{k:'g',l:'Reg./Cura',w:15}],AppState.historyWeeks.map(x=>({w:x.weekNumber,r:money(x.required),c:money(x.collection),e:fixed2(percent(x.collection,x.required))+'%',p:fixed2(percent(x.passAmount,x.partialPortfolio))+'%',g:fixed2(percent(num(x.returnsAmount)+num(x.prevReturns),x.totalPortfolio))+'%'})));y=pSec(p,y,'4. VISITAS REALIZADAS');y=pTab(p,y,[{k:'n',l:'N°',w:7},{k:'name',l:'Cliente',w:35},{k:'dui',l:'DUI',w:20},{k:'status',l:'Estado',w:25},{k:'mun',l:'Municipio',w:22},{k:'date',l:'Fecha',w:18}],[...AppState.visits.filter(x=>x.done),...pdfA()].map((x,i)=>({n:i+1,name:x.name,dui:x.dui,status:x.status||'Visitado',mun:x.municipality,date:x.visitedAt?new Date(x.visitedAt).toLocaleDateString('es-SV'):''})));p.save(`Informe_Ejecutivo_${getLocalDateKey()}.pdf`)};window.shareReport=async()=>{try{const c=await reportCanvas(),blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));if(!blob)throw new Error('No se pudo crear la imagen');const file=new File([blob],'Informe_Panel_Semanal.png',{type:'image/png'});if(navigator.canShare?.({files:[file]}))await navigator.share({title:'Informe semanal de cartera',files:[file]});else await downloadReportPDF();}catch(error){if(error?.name==='AbortError'){showAppToast('Compartir cancelado');return;}console.error(error);showAppToast('No fue posible compartir; se descargará el PDF');try{await downloadReportPDF();}catch{}}};
+
+window.resetAppState=()=>{if(!confirm('¿Restablecer completamente la aplicación?'))return;[KEY,PKEY,POLICY_KEY,'GESTOR_AVANCE_DIARIO_V2'].forEach(k=>safeStorage.removeItem(k));location.reload();};
+
+document.addEventListener('DOMContentLoaded',()=>{
+        // CONTROL UNICO DE BOTONES DINAMICOS: HISTORIAL DE SEMANAS Y VISITAS
+        document.addEventListener('click', function(event) {
+            const weekButton = event.target.closest('.js-edit-week');
+            if (weekButton) {
+                event.preventDefault();
+                event.stopPropagation();
+                const weekNumber = Number(weekButton.dataset.weekNumber);
+                if (!Number.isFinite(weekNumber)) {
+                    showAppToast('No fue posible identificar la semana');
+                    return;
+                }
+                window.openWeekEditor(weekNumber);
+                return;
+            }
+
+            const visitButton = event.target.closest('.js-edit-visit');
+            if (visitButton) {
+                event.preventDefault();
+                event.stopPropagation();
+                const visitId = Number(visitButton.dataset.visitId);
+                if (!Number.isFinite(visitId)) {
+                    showAppToast('No fue posible identificar el cliente');
+                    return;
+                }
+                window.openEditVisit(visitId);
+            }
+        }, false);
+
+ normalizeState();const k=AppState.panelKPIs;[['input-week-number','weekNumber'],['input-required','required'],['input-collection','collection'],['input-partial-portfolio','partialPortfolio'],['input-pass-amount','passAmount'],['input-returns','returnsAmount'],['input-prev-returns','prevReturns'],['input-total-portfolio','totalPortfolio']].forEach(([id,key])=>$(id).value=k[key]||0);$('top-manager-name').value=profile.name||'';$('profile-code').value=profile.code||'';$('profile-segment').value=profile.segment||'Mora 30';let previousSegment=profile.segment||'Mora 30';
+// Migra el estado existente al primer segmento activo si todavía no hay una copia separada.
+if(!readSegmentBuckets()[previousSegment]) saveCurrentSegmentBucket(previousSegment);
+$('profile-segment').onchange=e=>{if(e.target.value===previousSegment)return;saveCurrentSegmentBucket(previousSegment);previousSegment=e.target.value;profile.segment=e.target.value;loadSegmentBucket(profile.segment);normalizeState();syncPanelFormFromState();safeStorage.setItem(PKEY,JSON.stringify(profile));const fallback=SEGMENT_POLICIES[profile.segment]||BASE_POLICY;try{scoringPolicy=normalizePolicy({...fallback,...JSON.parse(safeStorage.getItem(policyKey(profile.segment))||'{}')},fallback);}catch{scoringPolicy=normalizePolicy(fallback,fallback);}$('policy-version').value=scoringPolicy.version;$('policy-date').value=scoringPolicy.effectiveDate;$('policy-json').value=JSON.stringify({efficiency:scoringPolicy.efficiency,returns:scoringPolicy.returns,pass:scoringPolicy.pass,commission:scoringPolicy.commission,passPenalty:scoringPolicy.passPenalty||[]},null,2);showAppToast(`Segmento ${profile.segment} activado`);renderSelector();renderPanel();};$('policy-version').value=scoringPolicy.version;$('policy-date').value=scoringPolicy.effectiveDate;$('policy-json').value=JSON.stringify({efficiency:scoringPolicy.efficiency,returns:scoringPolicy.returns,pass:scoringPolicy.pass,commission:scoringPolicy.commission,passPenalty:scoringPolicy.passPenalty||[]},null,2);$('save-policy').onclick=()=>{try{const cfg=JSON.parse($('policy-json').value);scoringPolicy=normalizePolicy({version:$('policy-version').value.trim()||'Sin versión',effectiveDate:$('policy-date').value||getLocalDateKey(),...cfg},SEGMENT_POLICIES[profile.segment]||BASE_POLICY);safeStorage.setItem(policyKey(profile.segment),JSON.stringify(scoringPolicy));$('policy-json').value=JSON.stringify({efficiency:scoringPolicy.efficiency,returns:scoringPolicy.returns,pass:scoringPolicy.pass,commission:scoringPolicy.commission,passPenalty:scoringPolicy.passPenalty||[]},null,2);renderPanel();showAppToast(`Política de ${profile.segment} validada y guardada`);}catch(error){showAppToast(error.message||'JSON de política no válido');}};const npm=$('modal-new-policy'),setNPOpen=o=>{npm.classList.toggle('hidden',!o);npm.classList.toggle('flex',o)};$('add-new-policy').onclick=()=>{const sg=$('profile-segment').value||profile.segment,fb=SEGMENT_POLICIES[sg]||BASE_POLICY;$('new-policy-segment').value=sg;$('new-policy-version').value=sg.replace(/\s+/g,'')+'-NUEVA';$('new-policy-date').value=getLocalDateKey();$('new-policy-json').value=JSON.stringify({efficiency:fb.efficiency,returns:fb.returns,pass:fb.pass,commission:fb.commission,passPenalty:fb.passPenalty||[]},null,2);setNPOpen(true)};$('close-new-policy').onclick=$('cancel-new-policy').onclick=()=>setNPOpen(false);$('new-policy-segment').onchange=e=>{const fb=SEGMENT_POLICIES[e.target.value]||BASE_POLICY;$('new-policy-version').value=e.target.value.replace(/\s+/g,'')+'-NUEVA';$('new-policy-json').value=JSON.stringify({efficiency:fb.efficiency,returns:fb.returns,pass:fb.pass,commission:fb.commission,passPenalty:fb.passPenalty||[]},null,2)};$('save-new-policy').onclick=()=>{try{const sg=$('new-policy-segment').value,fb=SEGMENT_POLICIES[sg]||BASE_POLICY,cfg=JSON.parse($('new-policy-json').value),pol=normalizePolicy({version:$('new-policy-version').value.trim()||'Sin versión',effectiveDate:$('new-policy-date').value||getLocalDateKey(),...cfg},fb);safeStorage.setItem(policyKey(sg),JSON.stringify(pol));if(sg===profile.segment){scoringPolicy=pol;renderPanel()}setNPOpen(false);showAppToast(`Nueva política guardada para ${sg}`)}catch(e){showAppToast(e.message||'Política no válida')}};$('top-manager-name').oninput=e=>{e.target.value=e.target.value.replace(/[<>]/g,'').toUpperCase();profile.name=e.target.value;safeStorage.setItem(PKEY,JSON.stringify(profile));};$('profile-code').oninput=e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6);$('save-profile').onclick=()=>{if(!/^\d{4,6}$/.test($('profile-code').value)){showAppToast('El código de gestor debe contener entre 4 y 6 dígitos');return;}profile.code=$('profile-code').value;profile.name=$('top-manager-name').value.trim();profile.segment=$('profile-segment').value;saveCurrentSegmentBucket(profile.segment);safeStorage.setItem(PKEY,JSON.stringify(profile));showAppToast('Perfil guardado');};$('week-editor-form').onsubmit=saveWeekEditor;$('edit-required').addEventListener('input',updateWeekEfficiencyPreview);$('edit-collection').addEventListener('input',updateWeekEfficiencyPreview);['metric-eff-range','metric-pass-range','metric-return-range'].forEach(id=>$(id)?.addEventListener('input',updateGoalSimulations));renderSelector();renderPanel();if(window.lucide)lucide.createIcons();});
+})();
+</script>
+
+
+<style>
+  .v3-filter-select{min-height:42px;background:#0b1320;border:1px solid #334155;border-radius:12px;padding:8px;color:#fff;font-size:11px;width:100%}
+  .v3-chip{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:800;border:1px solid rgba(148,163,184,.25)}
+  .v3-panel{background:#132238;border:1px solid #1e293b;border-radius:16px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
+  .visit-stats-grid > div{display:flex;min-height:68px;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+  @media(max-width:639px){.visit-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.visit-stats-grid>div:last-child{grid-column:1/-1}}
+  @media(min-width:640px) and (max-width:1023px){.visit-stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.visit-stats-grid>div:last-child{grid-column:auto}}
+  @media(min-width:1024px){.visit-stats-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+</style>
+<script>
+(() => {
+'use strict';
+const V3_DRAFT_KEY='GESTOR_V3_AUTOSAVE_DRAFTS';
+const MUNICIPIOS=['Armenia','Ciudad Arce','Coatepeque','Colón','El Congo','Jayaque','Sacacoyo','San Juan Opico','Santa Ana','Talnique','Tepecoyo'];
+const ESTADOS=['Gestión en curso','Sin voluntad de pago','Cambio de domicilio','Fallecido'];
+const q=id=>document.getElementById(id);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const n=v=>Math.max(0,Number(v)||0);
+const pct=(a,b)=>b>0?a/b*100:0;
+const usd=v=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n(v));
+function ensureV3State(){
+  AppState.trash=AppState.trash&&typeof AppState.trash==='object'?AppState.trash:{weeks:[],visits:[]};
+  AppState.trash.weeks=Array.isArray(AppState.trash.weeks)?AppState.trash.weeks:[];
+  AppState.trash.visits=Array.isArray(AppState.trash.visits)?AppState.trash.visits:[];
+  AppState.visits=(AppState.visits||[]).map(v=>({...v,status:v.status||'Gestión en curso',municipality:v.municipality||'Colón',createdAt:v.createdAt||new Date().toISOString(),updatedAt:v.updatedAt||new Date().toISOString()}));
+  AppState.historyWeeks=(AppState.historyWeeks||[]).map(w=>({...w,createdAt:w.createdAt||new Date().toISOString(),updatedAt:w.updatedAt||new Date().toISOString()}));
+  saveAppState();
+}
+function options(values,current=''){return values.map(x=>`<option value="${esc(x)}" ${x===current?'selected':''}>${esc(x)}</option>`).join('');}
+function injectUI(){
+  const search=q('visit-search-input')?.closest('.flex.gap-2');
+  if(search&&!q('visit-filter-status')) search.insertAdjacentHTML('afterend',`<div class="grid grid-cols-2 gap-2"><select id="visit-filter-done" class="v3-filter-select"><option value="all">Todos los avances</option><option value="pending">Pendientes</option><option value="done">Visitados</option></select><select id="visit-filter-status" class="v3-filter-select"><option value="all">Todos los estados</option>${options(ESTADOS)}</select><select id="visit-filter-municipality" class="v3-filter-select"><option value="all">Todos los municipios</option>${options(MUNICIPIOS)}</select></div><div class="flex justify-between text-[10px] text-slate-400"><span id="visit-filter-count">0 resultados</span><button id="clear-visit-filters" type="button" class="text-cyanAccent font-bold">Limpiar filtros</button></div>`);
+  const addResult=q('form-add-visit button[type="submit"]')?.parentElement;
+  if(addResult&&!q('modal-vis-status')) addResult.insertAdjacentHTML('beforebegin',`<div class="grid grid-cols-2 gap-2"><label class="text-[11px] text-slate-400">Estado<select id="modal-vis-status" class="mt-1 v3-filter-select">${options(ESTADOS)}</select></label><label class="text-[11px] text-slate-400">Municipio<select id="modal-vis-municipality" class="mt-1 v3-filter-select">${options(MUNICIPIOS,'Colón')}</select></label></div>`);
+  const editResult=q('edit-visit-name');
+  if(editResult&&!q('edit-visit-status')) editResult.insertAdjacentHTML('afterend',`<div class="grid grid-cols-2 gap-2"><select id="edit-visit-status" class="v3-filter-select">${options(ESTADOS)}</select><select id="edit-visit-municipality" class="v3-filter-select">${options(MUNICIPIOS,'Colón')}</select></div>`);
+  const history=q('history-list')?.closest('.bg-navy-800');
+  if(history&&!q('weekly-comparison')) history.insertAdjacentHTML('afterend',`<section id="weekly-comparison" class="v3-panel space-y-3"><div><h3 class="text-xs font-bold text-white">Comparación semanal</h3><p class="text-[10px] text-slate-400">Compare eficiencia, pase, regresos, puntaje estimado y variación.</p></div><div class="grid grid-cols-2 gap-2"><select id="compare-week-a" class="v3-filter-select"></select><select id="compare-week-b" class="v3-filter-select"></select></div><div id="comparison-result" class="text-[11px] text-slate-300">Registre al menos dos semanas.</div></section><section class="v3-panel space-y-3"><div class="flex justify-between"><div><h3 class="text-xs font-bold">Papelera de recuperación</h3><p class="text-[10px] text-slate-400">Restaure semanas o clientes eliminados.</p></div><span id="trash-count" class="v3-chip text-amber-300">0 elementos</span></div><div id="trash-list" class="space-y-2"></div></section>`);
+  const report=q('canvasBankReport')?.parentElement;
+  if(report&&!q('download-complete-report')) report.insertAdjacentHTML('beforeend',`<button id="download-complete-report" type="button" class="touch-btn w-full bg-gradient-to-r from-indigo-600 to-cyan-600 text-white text-xs font-bold rounded-xl">Descargar ficha ejecutiva completa PNG</button>`);
+  if(!q('autosave-indicator')) document.body.insertAdjacentHTML('beforeend',`<div id="autosave-indicator" class="fixed right-3 bottom-20 z-50 px-3 py-1.5 rounded-full bg-slate-900/95 border border-slate-700 text-[10px] text-emerald-300 opacity-0 transition-opacity pointer-events-none">Guardado automático</div>`);
+}
+let autosaveDebounceTimer,autosaveIndicatorTimer;
+function flashAutosave(){const el=q('autosave-indicator');if(!el)return;el.classList.remove('opacity-0');clearTimeout(autosaveIndicatorTimer);autosaveIndicatorTimer=setTimeout(()=>el.classList.add('opacity-0'),1100);}
+const draftIds=['input-week-number','input-required','input-collection','input-partial-portfolio','input-pass-amount','input-returns','input-prev-returns','input-total-portfolio','disc-name','disc-dui','disc-ref','disc-dias-mora','disc-producto','disc-capital','disc-mora','disc-gasto-reserva','disc-reserva-proyectada','disc-autorizado','disc-contacto','disc-abonos-anteriores','disc-pago-hoy','disc-razon','wa-template-select','wa-client-input','wa-phone-input','wa-amount-input','wa-date-input'];
+function saveDrafts(){const data={};draftIds.forEach(id=>{const el=q(id);if(el)data[id]=el.value;});safeStorage.setItem(V3_DRAFT_KEY,JSON.stringify({savedAt:new Date().toISOString(),data}));flashAutosave();}
+function restoreDrafts(){try{const d=JSON.parse(safeStorage.getItem(V3_DRAFT_KEY)||'null');if(!d?.data)return;Object.entries(d.data).forEach(([id,val])=>{const el=q(id);if(el&&String(val)!=='')el.value=val;});calculateDiscount();generateWAMessage();showAppToast('Borrador automático restaurado');}catch(e){console.warn('Borrador inválido',e);}}
+function bindAutosave(){draftIds.forEach(id=>q(id)?.addEventListener('input',()=>{clearTimeout(autosaveDebounceTimer);autosaveDebounceTimer=setTimeout(saveDrafts,450);}));['form-panel-kpis','form-add-visit'].forEach(id=>q(id)?.addEventListener('submit',saveDrafts));}
+function visitFilter(v){const term=(q('visit-search-input')?.value||'').toLowerCase();const done=q('visit-filter-done')?.value||'all',status=q('visit-filter-status')?.value||'all',mun=q('visit-filter-municipality')?.value||'all';return (!term||String(v.name).toLowerCase().includes(term)||String(v.dui||'').includes(term))&&(done==='all'||(done==='done')===!!v.done)&&(status==='all'||v.status===status)&&(mun==='all'||v.municipality===mun);}
+window.renderVisitsList=function(){const c=q('visits-touch-list');if(!c)return;let rows=(AppState.visits||[]).filter(visitFilter);rows.sort((a,b)=>Number(a.done)-Number(b.done)||(AppState.visitsSortAZ?String(a.name).localeCompare(String(b.name)):Number(a.id)-Number(b.id)));c.innerHTML=rows.length?rows.map(v=>`<div class="bg-navy-800 border ${v.done?'border-emerald-500/40':'border-slate-800'} p-3.5 rounded-2xl space-y-2"><div class="flex justify-between gap-2"><div><h4 class="text-xs font-bold">${esc(v.name)}</h4><span class="text-[10px] text-slate-400 font-mono">${esc(v.dui)}</span></div><span class="v3-chip ${v.done?'text-emerald-300':'text-slate-300'}">${v.done?'VISITADO':'PENDIENTE'}</span></div><div class="flex flex-wrap gap-1"><span class="v3-chip text-cyan-300">${esc(v.status)}</span><span class="v3-chip text-indigo-300">${esc(v.municipality)}</span></div><div class="flex justify-between items-center border-t border-slate-800 pt-2"><span class="text-[10px] text-slate-400">Ficha de cliente</span><div class="flex gap-2 flex-wrap justify-end"><button type="button" data-action="edit-visit" data-visit-id="${v.id}" class="js-edit-visit touch-btn min-h-[36px] px-3 bg-brand-600 text-xs font-bold rounded-xl">✎ Editar</button><button type="button" onclick="toggleVisitState(${v.id})" class="touch-btn min-h-[36px] px-3 ${v.done?'bg-slate-700':'bg-emerald-600'} text-xs font-bold rounded-xl">${v.done?'↶ Deshacer':'✓ Visitado'}</button><button type="button" onclick="deleteVisitItem(${v.id})" class="p-2 text-rose-400">🗑</button></div></div></div>`).join(''):'<div class="v3-panel text-center text-xs text-slate-400">No hay clientes que coincidan con los filtros.</div>';q('visit-filter-count')&&(q('visit-filter-count').textContent=`${rows.length} de ${(AppState.visits||[]).length} clientes`);updateVisitCoverageStats();if(window.lucide)lucide.createIcons();};
+const originalOpen=window.openEditVisit;
+window.openEditVisit=function(id){originalOpen(id);const v=AppState.visits.find(x=>Number(x.id)===Number(id));if(v){q('edit-visit-status').value=v.status||ESTADOS[0];q('edit-visit-municipality').value=v.municipality||'Colón';}};
+window.saveEditedVisit=function(){const id=Number(q('edit-visit-id').value),v=AppState.visits.find(x=>Number(x.id)===id);if(!v)return;const name=q('edit-visit-name').value.trim();if(!name){showAppToast('Ingrese el nombre del cliente');return;}Object.assign(v,{name,dui:q('edit-visit-dui').value.trim(),status:q('edit-visit-status').value,municipality:q('edit-visit-municipality').value,updatedAt:new Date().toISOString()});saveAppState();closeEditVisit();renderVisitsList();showAppToast('Datos operativos actualizados');};
+window.saveSingleVisit=function(){const name=q('modal-vis-name').value.trim();if(!name){showAppToast('Ingrese el nombre');return;}AppState.visits.unshift({id:Date.now(),name,dui:q('modal-vis-dui').value,status:q('modal-vis-status').value,municipality:q('modal-vis-municipality').value,done:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});saveAppState();toggleAddVisitModal();q('form-add-visit').reset();q('modal-vis-municipality').value='Colón';renderVisitsList();showAppToast('Cliente guardado');};
+window.deleteVisitItem=function(id){const i=AppState.visits.findIndex(v=>Number(v.id)===Number(id));if(i<0)return;const v=AppState.visits[i];if(!confirm(`¿Enviar a ${v.name||'este cliente'} a la papelera?`))return;AppState.trash.visits.unshift({...v,deletedAt:new Date().toISOString()});AppState.visits.splice(i,1);saveAppState();renderVisitsList();renderTrash();showAppToast('Cliente enviado a papelera');};
+window.deleteHistoryWeek=function(week){const i=AppState.historyWeeks.findIndex(w=>Number(w.weekNumber)===Number(week));if(i<0)return;if(!confirm(`¿Enviar la Semana ${week} a la papelera?`))return;AppState.trash.weeks.unshift({...AppState.historyWeeks[i],deletedAt:new Date().toISOString()});AppState.historyWeeks.splice(i,1);AppState.panelKPIs.selectedWeekNumbers=(AppState.panelKPIs.selectedWeekNumbers||[]).filter(x=>Number(x)!==Number(week));saveAppState();renderSelector();renderPanel();renderTrash();renderComparison();showAppToast(`Semana ${week} enviada a papelera`);};
+window.duplicateHistoryWeek=function(week){const src=AppState.historyWeeks.find(w=>Number(w.weekNumber)===Number(week));if(!src)return;const nums=AppState.historyWeeks.map(w=>Number(w.weekNumber)).filter(Number.isFinite),next=nums.length?Math.max(...nums)+1:1;const row={...structuredClone(src),weekNumber:next,week:`Semana ${next}`,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};AppState.historyWeeks.push(row);Object.assign(AppState.panelKPIs,row);saveAppState();renderSelector();renderPanel();renderComparison();showAppToast(`Semana ${week} duplicada como Semana ${next}`);};
+const oldHistory=window.renderHistoryList;
+window.renderHistoryList=function(){oldHistory();q('history-list')?.querySelectorAll('[data-action="edit-week"]').forEach(btn=>{if(btn.parentElement.querySelector('.v3-duplicate'))return;btn.insertAdjacentHTML('afterend',`<button type="button" onclick="duplicateHistoryWeek(${Number(btn.dataset.weekNumber)})" class="v3-duplicate touch-btn min-h-[34px] px-3 rounded-lg bg-indigo-600 text-white text-[10px] font-bold">Duplicar</button>`);});renderComparison();};
+window.restoreTrashItem=function(type,index){const arr=AppState.trash[type];const item=arr[index];if(!item)return;if(type==='weeks'){if(AppState.historyWeeks.some(w=>Number(w.weekNumber)===Number(item.weekNumber))){showAppToast('Ese número de semana ya existe');return;}delete item.deletedAt;AppState.historyWeeks.push(item);AppState.historyWeeks.sort((a,b)=>a.weekNumber-b.weekNumber);}else{if(AppState.visits.some(v=>Number(v.id)===Number(item.id)))item.id=Date.now();delete item.deletedAt;AppState.visits.unshift(item);}arr.splice(index,1);saveAppState();renderSelector();renderPanel();renderVisitsList();renderTrash();showAppToast(type==='weeks'?'Semana restaurada':'Cliente restaurado');};
+function renderTrash(){const box=q('trash-list');if(!box)return;const rows=[...AppState.trash.weeks.map((x,i)=>({type:'weeks',i,label:`Semana ${x.weekNumber}`})),...AppState.trash.visits.map((x,i)=>({type:'visits',i,label:x.name||'Cliente'}))];q('trash-count').textContent=`${rows.length} elementos`;box.innerHTML=rows.length?rows.map(r=>`<div class="flex justify-between items-center bg-navy-950 rounded-xl p-2"><span class="text-[11px]">${esc(r.label)}</span><button type="button" onclick="restoreTrashItem('${r.type}',${r.i})" class="touch-btn min-h-[34px] px-3 bg-emerald-600 rounded-lg text-[10px] font-bold">Restaurar</button></div>`).join(''):'<p class="text-[11px] text-slate-500">La papelera está vacía.</p>';}
+function weekMetrics(w){const e=pct(w.collection,w.required),pa=pct(w.passAmount,w.partialPortfolio),r=pct(n(w.returnsAmount)+n(w.prevReturns),w.totalPortfolio);return{e,pa,r};}
+function renderComparison(){const a=q('compare-week-a'),b=q('compare-week-b');if(!a||!b)return;const weeks=[...AppState.historyWeeks].sort((x,y)=>x.weekNumber-y.weekNumber),html=weeks.map(w=>`<option value="${w.weekNumber}">Semana ${w.weekNumber}</option>`).join(''),av=a.value,bv=b.value;a.innerHTML=html;b.innerHTML=html;if(weeks.length<2){q('comparison-result').textContent='Registre al menos dos semanas.';return;}a.value=weeks.some(w=>String(w.weekNumber)===av)?av:String(weeks.at(-2).weekNumber);b.value=weeks.some(w=>String(w.weekNumber)===bv)?bv:String(weeks.at(-1).weekNumber);const wa=weeks.find(w=>String(w.weekNumber)===a.value),wb=weeks.find(w=>String(w.weekNumber)===b.value),ma=weekMetrics(wa),mb=weekMetrics(wb);const delta=(x,y,inverse=false)=>{const d=y-x,good=inverse?d<0:d>0;return `<span class="${d===0?'text-slate-400':good?'text-emerald-400':'text-rose-400'}">${d>0?'+':''}${d.toFixed(2)} pp</span>`};q('comparison-result').innerHTML=`<div class="grid grid-cols-3 gap-2 text-center"><div class="bg-navy-950 p-2 rounded-xl"><b>Eficiencia</b><br>${ma.e.toFixed(2)}% → ${mb.e.toFixed(2)}%<br>${delta(ma.e,mb.e)}</div><div class="bg-navy-950 p-2 rounded-xl"><b>Pase</b><br>${ma.pa.toFixed(2)}% → ${mb.pa.toFixed(2)}%<br>${delta(ma.pa,mb.pa,true)}</div><div class="bg-navy-950 p-2 rounded-xl"><b>Regresos</b><br>${ma.r.toFixed(2)}% → ${mb.r.toFixed(2)}%<br>${delta(ma.r,mb.r)}</div></div>`;}
+function completeReport(){const k=AppState.panelKPIs,vis=AppState.visits,done=vis.filter(v=>v.done).length,lines=[`REPORTE OPERATIVO COMPLETO`,`Generado: ${new Date().toLocaleString('es-SV')}`,`Gestor: ${q('top-manager-name')?.value||'Sin nombre'}`,`Segmento: ${q('profile-segment')?.value||''}`,``,`INDICADORES ACTIVOS`,`Semana: ${k.weekNumber||0}`,`Requerido: ${usd(k.required)}`,`Cobranza: ${usd(k.collection)}`,`Eficiencia: ${pct(k.collection,k.required).toFixed(2)}%`,`Pase: ${pct(k.passAmount,k.partialPortfolio).toFixed(2)}%`,`Regresos: ${pct(n(k.returnsAmount)+n(k.prevReturns),k.totalPortfolio).toFixed(2)}%`,``,`HISTORIAL (${AppState.historyWeeks.length})`];AppState.historyWeeks.forEach(w=>{const m=weekMetrics(w);lines.push(`Semana ${w.weekNumber}: Req ${usd(w.required)} | Cob ${usd(w.collection)} | Ef ${m.e.toFixed(2)}% | Pase ${m.pa.toFixed(2)}% | Regresos ${m.r.toFixed(2)}%`);});lines.push('',`VISITAS: ${done}/${vis.length} realizadas`);vis.forEach(v=>lines.push(`${v.done?'[VISITADO]':'[PENDIENTE]'} ${v.name} | ${v.status} | ${v.municipality}`));lines.push('',`PAPELERA: ${AppState.trash.weeks.length} semanas y ${AppState.trash.visits.length} clientes`);return lines.join('\n');}
+function drawExecutiveText(ctx,text,x,y,maxWidth,lineHeight){const words=String(text).split(/\s+/);let line='';for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){ctx.fillText(line,x,y);line=word;y+=lineHeight;}else line=test;}if(line)ctx.fillText(line,x,y);return y;}
+function executiveCard(ctx,x,y,w,h,title,value,accent){ctx.fillStyle='#101f34';ctx.strokeStyle='#263b58';ctx.lineWidth=2;roundedRectPath(ctx,x,y,w,h,22);ctx.fill();ctx.stroke();ctx.fillStyle='#91a4ba';ctx.font='700 18px JetBrains Mono';ctx.fillText(title,x+24,y+38);ctx.fillStyle=accent;ctx.font='800 31px JetBrains Mono';ctx.fillText(value,x+24,y+82);}
+async function renderCompleteExecutiveReport(){
+  if(document.fonts?.ready)await document.fonts.ready;
+  const weeks=[...AppState.historyWeeks].sort((a,b)=>a.weekNumber-b.weekNumber),vis=AppState.visits||[],done=vis.filter(v=>v.done).length;
+  const rows=Math.max(1,weeks.length)+Math.max(1,vis.length),W=1080,H=Math.max(1350,960+rows*64),c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'#06111f');g.addColorStop(1,'#102942');x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.fillStyle='#00d9e6';x.fillRect(54,52,8,148);x.fillStyle='#fff';x.font='800 38px JetBrains Mono';x.fillText('FICHA EJECUTIVA OPERATIVA',88,105);x.fillStyle='#91a4ba';x.font='500 18px JetBrains Mono';x.fillText(`${profile.name||'GESTOR SIN NOMBRE'} · ${profile.segment} · Código ${profile.code||'000000'}`,88,145);x.fillText(new Date().toLocaleString('es-SV'),88,180);
+  const v=indicators(),r=score(v);executiveCard(x,54,235,300,112,'PUNTAJE',`${fixed2(r.total)}/100`,'#00d9e6');executiveCard(x,390,235,300,112,'COMISIÓN FINAL',money(r.commission),'#05f19c');executiveCard(x,726,235,300,112,'VISITAS',`${done}/${vis.length}`,'#ffb35c');
+  x.fillStyle='#fff';x.font='800 25px JetBrains Mono';x.fillText('INDICADORES ACTIVOS',54,410);const metrics=[[`Eficiencia ${profile.segment.replace('Mora ','M')}`,`${fixed2(v.efficiency)}% · ${r.efficiency}/${policyMaximum('efficiency')} pts`], [profile.segment==='Mora 90'?'Pase 90':'Pase 120',`${fixed2(v.pass)}% · ${r.pass}/${policyMaximum('pass')} pts`],[profile.segment==='Mora 90'?'Cura':'Regresos',`${fixed2(v.returns)}% · ${r.returns}/${policyMaximum('returns')} pts`]];
+  let y=445;metrics.forEach((m,i)=>{x.fillStyle=i%2?'#10243a':'#0d1e31';x.fillRect(54,y,972,55);x.fillStyle='#a8b7ca';x.font='600 18px JetBrains Mono';x.fillText(m[0],78,y+35);x.fillStyle='#fff';x.textAlign='right';x.fillText(m[1],1000,y+35);x.textAlign='left';y+=60;});
+  x.fillStyle='#fff';x.font='800 25px JetBrains Mono';x.fillText('HISTORIAL DE SEMANAS',54,y+38);y+=65;if(!weeks.length){x.fillStyle='#91a4ba';x.font='500 18px JetBrains Mono';x.fillText('Sin semanas registradas.',78,y+28);y+=55;}else weeks.forEach(w=>{const m=weekMetrics(w);x.fillStyle='#0d1e31';x.fillRect(54,y,972,52);x.fillStyle='#fff';x.font='700 17px JetBrains Mono';x.fillText(`Semana ${w.weekNumber}`,78,y+32);x.fillStyle='#9fb0c4';x.textAlign='right';x.fillText(`Ef. ${m.e.toFixed(2)}% · Pase ${m.pa.toFixed(2)}% · ${profile.segment==='Mora 90'?'Cura':'Reg.'} ${m.r.toFixed(2)}%`,1000,y+32);x.textAlign='left';y+=58;});
+  x.fillStyle='#fff';x.font='800 25px JetBrains Mono';x.fillText('CARTERA DE CLIENTES',54,y+38);y+=65;if(!vis.length){x.fillStyle='#91a4ba';x.font='500 18px JetBrains Mono';x.fillText('Sin clientes registrados.',78,y+28);}else vis.forEach(client=>{x.fillStyle='#0d1e31';x.fillRect(54,y,972,52);x.fillStyle=client.done?'#05f19c':'#ffb35c';x.font='700 16px JetBrains Mono';x.fillText(client.done?'VISITADO':'PENDIENTE',78,y+31);x.fillStyle='#fff';x.font='600 17px JetBrains Mono';x.fillText(String(client.name||'Cliente').slice(0,42),220,y+31);x.fillStyle='#9fb0c4';x.textAlign='right';x.fillText(`${client.status||'Gestión en curso'} · ${client.municipality||''}`,1000,y+31);x.textAlign='left';y+=58;});
+  x.fillStyle='#72849a';x.font='500 14px JetBrains Mono';x.fillText('Generado localmente · Validar cifras contra fuente oficial',54,H-35);return c;
+}
+async function downloadCompleteReport(){try{const c=await renderCompleteExecutiveReport(),a=document.createElement('a');a.href=c.toDataURL('image/png');a.download=`Ficha_Ejecutiva_Operativa_${new Date().toISOString().slice(0,10)}.png`;a.click();showAppToast('Ficha ejecutiva completa descargada');}catch(error){console.error(error);showAppToast('No fue posible generar la ficha ejecutiva');}}
+document.addEventListener('DOMContentLoaded',()=>{ensureV3State();injectUI();restoreDrafts();bindAutosave();['visit-filter-done','visit-filter-status','visit-filter-municipality'].forEach(id=>q(id)?.addEventListener('change',renderVisitsList));q('clear-visit-filters')?.addEventListener('click',()=>{['visit-filter-done','visit-filter-status','visit-filter-municipality'].forEach(id=>q(id).value='all');q('visit-search-input').value='';renderVisitsList();});q('compare-week-a')?.addEventListener('change',renderComparison);q('compare-week-b')?.addEventListener('change',renderComparison);q('download-complete-report')?.addEventListener('click',downloadCompleteReport);renderVisitsList();renderTrash();renderComparison();renderHistoryList();});
+})();
+</script>
+
+
+<div id="modal-avance-wa" class="fixed inset-0 z-50 bg-black/80 hidden items-center justify-center p-4"><div class="bg-navy-900 border border-slate-700 rounded-2xl p-4 w-full max-w-xs space-y-3"><h3 class="font-bold">Enviar avance TXT</h3><button onclick="sendAvanceTXTChannel('normal')" class="touch-btn w-full bg-whatsapp-600 rounded-xl font-bold">WhatsApp Normal</button><button onclick="sendAvanceTXTChannel('business')" class="touch-btn w-full bg-whatsapp-700 rounded-xl font-bold">WhatsApp Business</button><button onclick="sendAvanceTXTChannel('web')" class="touch-btn w-full bg-brand-600 rounded-xl font-bold">WhatsApp Web</button><button onclick="closeAvanceTXTShareModal()" class="touch-btn w-full bg-navy-800 rounded-xl">Cancelar</button></div></div>
+<div id="modal-wa-format-editor" class="fixed inset-0 z-50 bg-black/80 hidden items-center justify-center p-4"><div class="bg-navy-900 border border-slate-700 rounded-2xl p-4 w-full max-w-md space-y-3 max-h-[92vh] overflow-y-auto"><div class="flex justify-between"><h3 class="font-bold">Formato de mensaje</h3><button onclick="closeWAFormatEditor()">✕</button></div><input id="wa-format-id" type="hidden"><input id="wa-format-name" placeholder="Nombre del formato" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-3"><textarea id="wa-format-content" rows="8" placeholder="Contenido con variables" class="w-full bg-navy-950 border border-slate-700 rounded-xl p-3"></textarea><div class="bg-navy-950 border border-slate-800 rounded-xl p-3"><div class="flex justify-between"><b class="text-xs">Campos dinámicos</b><button onclick="addWAFormatField()" class="px-3 py-2 bg-cyanAccent text-navy-950 rounded-lg text-xs font-black">+ Agregar campo</button></div><div id="wa-format-fields-list" class="space-y-2 mt-2"></div></div><div class="flex gap-2"><button onclick="closeWAFormatEditor()" class="touch-btn flex-1 bg-navy-800 rounded-xl">Cancelar</button><button onclick="saveWAFormat()" class="touch-btn flex-1 bg-brand-600 rounded-xl">Guardar</button></div></div></div>
+<script>
+(()=>{'use strict';const AKEY='GESTOR_VISITS_ARCHIVED_V1',FKEY='GESTOR_WA_FORMATS_V1';const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+window.openAvanceTXTShareModal=()=>openUniversalWhatsApp({text:getAvanceTXT()});window.closeAvanceTXTShareModal=()=>{let m=document.getElementById('modal-avance-wa');m.classList.add('hidden');m.classList.remove('flex')};window.sendAvanceTXTChannel=t=>{const x=encodeURIComponent(getAvanceTXT()),u=t==='web'?`https://web.whatsapp.com/send?text=${x}`:t==='business'?`https://api.whatsapp.com/send?text=${x}`:`https://wa.me/?text=${x}`;closeAvanceTXTShareModal();open(u,'_blank')};
+function ar(){try{return JSON.parse(safeStorage.getItem(AKEY)||'[]')}catch{return[]}}function sar(x){safeStorage.setItem(AKEY,JSON.stringify(x))}window.archiveAllVisited=()=>{const d=AppState.visits.filter(v=>v.done);if(!d.length)return showAppToast('No hay clientes visitados');if(!confirm(`¿Archivar ${d.length} clientes?`))return;const a=ar();d.forEach(v=>a.unshift({...v,archivedAt:new Date().toISOString()}));const ids=new Set(d.map(v=>v.id));AppState.visits=AppState.visits.filter(v=>!ids.has(v.id));sar(a);saveAppState();renderVisitsList();renderArchivedVisits()};window.renderArchivedVisits=()=>{const b=document.getElementById('archived-visits-list');if(!b)return;const a=ar();document.getElementById('archived-count').textContent=a.length;b.innerHTML=a.length?a.map(v=>`<div class="bg-navy-950 rounded-xl p-3 flex justify-between"><div><b>${esc(v.name)}</b><p class="text-xs text-slate-400">${esc(v.dui||'')} · ${esc(v.municipality||'')}</p></div><button onclick="restoreArchivedVisit(${v.id})" class="px-3 bg-emerald-600 rounded-lg">Restaurar</button></div>`).join(''):'<p class="text-xs text-slate-500">Sin archivados.</p>'};window.restoreArchivedVisit=id=>{const a=ar(),i=a.findIndex(v=>v.id===id);if(i<0)return;const[v]=a.splice(i,1);v.done=true;AppState.visits.unshift(v);sar(a);saveAppState();renderVisitsList();renderArchivedVisits()};
+const bs=window.updateVisitCoverageStats||updateVisitCoverageStats;window.updateVisitCoverageStats=()=>{bs();const t=AppState.visits.length,d=AppState.visits.filter(v=>v.done).length,x=document.getElementById('visit-stat-pending-total');if(x)x.textContent=Math.max(0,t-d)};
+window.resetPanelInformation=()=>{if(!confirm('¿Restablecer Panel?'))return;AppState.panelKPIs={weekNumber:0,required:0,collection:0,partialPortfolio:0,passAmount:0,returnsAmount:0,prevReturns:0,totalPortfolio:0,selectedWeekNumbers:[],eficiencia:0,pase:0,regresos:0,recuperado:0};AppState.historyWeeks=[];saveAppState();syncPanelFormFromState?.();renderSelector();renderPanel()};window.resetDiscountInformation=()=>{if(!confirm('¿Restablecer Descuentos?'))return;['disc-name','disc-dui','disc-ref','disc-dias-mora','disc-capital','disc-mora','disc-offered','disc-gasto-reserva','disc-reserva-proyectada','disc-contacto','disc-abonos-anteriores','disc-pago-hoy','disc-razon'].forEach(id=>document.getElementById(id).value='');setDiscountFlow('electronic');calculateDiscount()};window.resetAvanceInformation=()=>{if(!confirm('¿Restablecer Avance?'))return;avanceIds.forEach(id=>document.getElementById(id).value='');safeStorage.removeItem('GESTOR_AVANCE_DIARIO_V2');calculateAvanceTotal();renderAvancePNGCanvas()};window.resetVisitsInformation=()=>{if(!confirm('¿Restablecer Visitas y Archivados?'))return;AppState.visits=[];safeStorage.removeItem(AKEY);saveAppState();renderVisitsList();renderArchivedVisits()};
+const defs={normalizacion:{name:'Plan Normalización',content:'Estimado(a) {cliente}, saldo ${monto}, fecha {fecha}.',fields:[]},refinanciamiento:{name:'Propuesta Refinanciamiento',content:'Estimado(a) {cliente}, propuesta por ${monto}, fecha {fecha}.',fields:[]},prejuridica:{name:'Cobranza Pre-Jurídica',content:'Titular {cliente}, saldo ${monto}, fecha {fecha}.',fields:[]}};function fs(){try{return{...defs,...JSON.parse(safeStorage.getItem(FKEY)||'{}')}}catch{return{...defs}}}function norm(v){return String(v||'campo').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'_')||'campo'}function refresh(id){const q=document.getElementById('wa-template-select'),f=fs();q.innerHTML=Object.entries(f).map(([k,v])=>`<option value="${k}">${esc(v.name)}</option>`).join('');if(id)q.value=id;fields();msg()};function fields(){const f=fs()[document.getElementById('wa-template-select').value],a=f?.fields||[],c=document.getElementById('wa-custom-fields-card'),b=document.getElementById('wa-custom-fields-inputs');c.classList.toggle('hidden',!a.length);document.getElementById('wa-custom-fields-count').textContent=`${a.length} campos`;b.innerHTML=a.map((x,i)=>`<label class="block text-xs">${esc(x.label)} {${x.variable}}<input data-var="${x.variable}" data-type="${x.type}" type="${x.type==='date'?'date':x.type==='number'||x.type==='currency'?'number':'text'}" class="w-full bg-navy-950 p-2 rounded-lg"></label>`).join('');b.querySelectorAll('input').forEach(x=>x.oninput=msg)}function fmt(v,t){if(t==='currency')return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(v)||0);if(t==='date'&&v)return new Date(v+'T00:00:00').toLocaleDateString('es-SV');return t==='uppercase'?String(v).toUpperCase():v}function msg(){const f=fs()[document.getElementById('wa-template-select').value];if(!f)return;const v={cliente:document.getElementById('wa-client-input').value||'Cliente',monto:document.getElementById('wa-amount-input').value||'0.00',fecha:document.getElementById('wa-date-input').value||'próximas horas'};document.querySelectorAll('[data-var]').forEach(x=>v[x.dataset.var]=fmt(x.value,x.dataset.type));let t=f.content;Object.entries(v).forEach(([k,z])=>t=t.replaceAll(`{${k}}`,z));document.getElementById('wa-preview-text').innerText=t}window.generateWAMessage=msg;function row(x={}){return`<div class="wa-row bg-navy-900 p-2 rounded-lg"><input data-n value="${esc(x.label||'Nuevo campo')}" class="w-1/3 bg-navy-950 p-2"><input data-v value="${esc(x.variable||'nuevo_campo')}" class="w-1/3 bg-navy-950 p-2"><select data-t class="w-1/4 bg-navy-950 p-2"><option value="text">Texto</option><option value="uppercase">Mayúsculas</option><option value="number">Número</option><option value="currency">Moneda</option><option value="date">Fecha</option></select><button onclick="this.parentElement.remove()">X</button></div>`}window.addWAFormatField=()=>document.getElementById('wa-format-fields-list').insertAdjacentHTML('beforeend',row());window.closeWAFormatEditor=()=>{let m=document.getElementById('modal-wa-format-editor');m.classList.add('hidden');m.classList.remove('flex')};function edit(id=''){const f=fs()[id];document.getElementById('wa-format-id').value=id;document.getElementById('wa-format-name').value=f?.name||'';document.getElementById('wa-format-content').value=f?.content||'';document.getElementById('wa-format-fields-list').innerHTML=(f?.fields||[]).map(row).join('');let m=document.getElementById('modal-wa-format-editor');m.classList.remove('hidden');m.classList.add('flex')}window.saveWAFormat=()=>{const id0=document.getElementById('wa-format-id').value,name=document.getElementById('wa-format-name').value.trim(),content=document.getElementById('wa-format-content').value.trim();if(!name||!content)return showAppToast('Complete nombre y contenido');const f=fs(),id=id0||`custom_${Date.now()}`,fields=[...document.querySelectorAll('.wa-row')].map(r=>({label:r.querySelector('[data-n]').value,variable:norm(r.querySelector('[data-v]').value),type:r.querySelector('[data-t]').value}));f[id]={name,content,fields};safeStorage.setItem(FKEY,JSON.stringify(f));closeWAFormatEditor();refresh(id)};document.addEventListener('DOMContentLoaded',()=>{document.getElementById('edit-wa-formats').onclick=()=>edit(document.getElementById('wa-template-select').value);document.getElementById('create-wa-format').onclick=()=>edit();document.getElementById('wa-template-select').onchange=()=>{fields();msg()};refresh();renderArchivedVisits()});
+})();
+</script>
+
+<script>
+let universalWhatsAppPayload={text:'',phone:''};
+function openUniversalWhatsApp(payload={}){universalWhatsAppPayload={text:String(payload.text||''),phone:String(payload.phone||'').replace(/\D/g,'')};const m=document.getElementById('modal-whatsapp-channel');m.classList.remove('hidden');m.classList.add('flex');}
+function closeUniversalWhatsApp(){const m=document.getElementById('modal-whatsapp-channel');m.classList.add('hidden');m.classList.remove('flex');}
+function sendUniversalWhatsApp(channel){const text=encodeURIComponent(universalWhatsAppPayload.text),phone=universalWhatsAppPayload.phone,query=`${phone?`phone=${phone}&`:''}text=${text}`;let url=phone?`https://wa.me/${phone}?text=${text}`:`https://wa.me/?text=${text}`;if(channel==='business')url=`https://api.whatsapp.com/send?${query}`;if(channel==='web')url=`https://web.whatsapp.com/send?${query}`;closeUniversalWhatsApp();window.open(url,'_blank','noopener,noreferrer');}
+</script>
+
+<script>
+(() => {
+  'use strict';
+  let deferredInstallPrompt = null;
+  const installButton = document.getElementById('pwa-install-button');
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .catch(error => console.error('No se pudo registrar el modo instalable:', error));
+    });
+  }
+
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    installButton?.classList.remove('hidden');
+  });
+
+  installButton?.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) {
+      showAppToast('Use el menú del navegador y seleccione Instalar aplicación');
+      return;
+    }
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installButton.classList.add('hidden');
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    installButton?.classList.add('hidden');
+    if (typeof showAppToast === 'function') showAppToast('GestorPro instalado correctamente');
+  });
+})();
+</script>
+
+</body>
+</html>
